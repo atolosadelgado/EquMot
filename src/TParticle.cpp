@@ -6,8 +6,8 @@
 
 TParticle::TParticle () {
     pos.SetRnd();
-    vel.x = 0.01* pos.y;
-    vel.y = -0.01*pos.x;
+    vel.x = pos.x;
+    vel.y = pos.y;
     id = (++nparticles);
 };
 
@@ -31,15 +31,19 @@ double TParticle::Mene( TVector & r ) {
 
 
 int TParticle::nparticles = 0;
-double TParticle::f_constant = 100.;
+double TParticle::f_constant = 1000.;
 
 
 
 
 std::ostream& operator<<(std::ostream& os, const TParticle& v)
 {
-    os << "Particle #" << v.id << " has this Kinetic energy " << v.Kene() << " and it is placed at " ;
-    os << v.pos;
+    os << "Part #" << v.id
+    << "\tKene " << v.Kene()
+    << "\tPos " ;
+    os << v.pos
+    << "\tVel " ;
+    os << v.vel;
     return os;
 }
 

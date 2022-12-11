@@ -13,6 +13,7 @@
 #include "TPlot.hpp"
 
 #include <vector>
+#include <iomanip>
 
 class TIntegrator
 {
@@ -22,40 +23,51 @@ public:
     std::vector<TParticle> particle_v;
     void DoStep();
     void PlotPositions(TPlot & plt);
-    double h = {1.};
+    double h = {0.1};
     int step = {0};
+    int nrefresh = {1};
     void PrintMene();
     void CheckDistances();
     void IntegratorEulerFw( std::vector<TVector> & forces);
 
-    void IntegratorVerlet( std::vector<TVector> & forces);
+    void IntegratorVerlet(std::vector< TVector >& force_v);
 };
 
 TIntegrator::TIntegrator():particle_v(2) {}
 
 void TIntegrator::PrintMene()
 {
-    double Mene = 0;
+    double Kene = 0;
+    double Vene = 0;
     for( auto particle : particle_v)
     {
         const int id = particle.id;
-        Mene += particle.Kene();
+        Kene += particle.Kene();
         for( auto aux : particle_v)
         {
             if( id == aux.id ) continue;
-            Mene += aux.Vene( particle.pos );
+            Vene += -1*aux.Vene( particle.pos );
         }
 
     }
-    std::cout << "Step\t" << step << "\tMene\t" << Mene << std::endl;
+    std::cout << std::scientific << std::setprecision(3)
+              << "Step\t" << step
+              << "\tMene\t" << Kene+Vene
+              << "\tKene\t" << Kene
+              << "\tVene\t" << Vene
+              << std::endl;
 }
 
 void TIntegrator::PlotPositions(TPlot& plt)
 {
+  if( 0 != step % nrefresh ) return;
     plt.StartPlot();
 
     for( auto & particle : particle_v )
+    {
         plt.AddPoint( particle.pos );
+        std::cout << particle << std::endl;
+    }
 
     plt.ShowPlot();
 
@@ -84,7 +96,8 @@ void TIntegrator::DoStep()
         }
     }
     // apply the force and do the actual step
-    IntegratorEulerFw(force_v);
+//     IntegratorEulerFw(force_v);
+    IntegratorVerlet(force_v);
 
 
     return;
@@ -97,11 +110,43 @@ void TIntegrator::IntegratorEulerFw(std::vector<TVector>& force_v)
 
     for( ; particle_i != particle_v.end(); ++force_i, ++particle_i)
     {
-        particle_i->pos += particle_i->vel*h;
-        particle_i->pos += (*force_i)*(0.5*h*h);
-        particle_i->vel += (*force_i);
+        particle_i->pos += particle_i->vel.Scale(h);;
+        particle_i->pos += (*force_i).Scale(0.5*h*h);
+        particle_i->vel += (*force_i).Scale(h);
     }
 }
+
+void TIntegrator::IntegratorVerlet(std::vector<TVector>& force_v)
+{
+    auto force_i = force_v.begin();
+    auto particle_i = particle_v.begin();
+    for( ; particle_i != particle_v.end(); ++force_i, ++particle_i)
+    {
+        particle_i->pos += particle_i->vel.Scale(h);
+        particle_i->pos += (*force_i).Scale(0.5*h*h);
+    }
+
+    //recalculate forces at new positions, and sum force at the next position to the previous calculated force
+    {
+        auto force_i = force_v.begin();
+        auto particle_i = particle_v.begin();
+
+        for( ; particle_i != particle_v.end(); ++force_i, ++particle_i)
+        {
+            const int id = particle_i->id;
+            for( auto aux : particle_v)
+            {
+                if( id == aux.id ) continue;
+                *force_i += aux.Force( particle_i->pos );
+            }
+            // update Velocity
+            particle_i->vel += (( *force_i ).Scale(0.5*h));
+
+        }
+    }
+
+}
+
 
 
 void TIntegrator::CheckDistances()
@@ -128,12 +173,27 @@ int main() {
     TPlot plt;
 
     TIntegrator myIntegrator;
+
+    myIntegrator.particle_v[0].pos.x = -30;
+    myIntegrator.particle_v[0].pos.y = 0;
+    myIntegrator.particle_v[0].vel.x = 0;
+    myIntegrator.particle_v[0].vel.y = -3;
+
+    myIntegrator.particle_v[1].pos.x = 30;
+    myIntegrator.particle_v[1].pos.y = 0;
+    myIntegrator.particle_v[1].vel.x = 0;
+    myIntegrator.particle_v[1].vel.y = 3;
+
+
     myIntegrator.PlotPositions(plt);
 
+//     std::cin.ignore();
 
-    for( int i = 0; i < 1000; ++i)
+
+    for( int i = 0; i < 10000; ++i)
     {
         myIntegrator.DoStep();
+        std::cin.ignore();
         myIntegrator.CheckDistances();
         myIntegrator.PlotPositions(plt);
         myIntegrator.PrintMene();

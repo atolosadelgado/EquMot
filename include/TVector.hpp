@@ -32,7 +32,9 @@ public:
     double distance( TVector & v);
     static double distance( TVector & v,  TVector & vv);
 
-    TVector & operator * (double const & scale);
+    TVector Scale(double h);
+
+//     TVector & operator * (double const & scale);
 
     friend std::ostream& operator<<(std::ostream& os, const TVector& v);
     TVector& operator+=(const TVector& v);

@@ -40,11 +40,17 @@ double TVector::distance( TVector & v,  TVector & vv) {
     return std::sqrt( pow(vv.x -v.x,2) + pow(vv.y-v.y,2));
 }
 
-TVector & TVector::operator * (double const & scale) {
-    this->x*=scale;
-    this->y*=scale;
-    return *this;
+// TVector & TVector::operator * (double const & scale) {
+//     this->x*=scale;
+//     this->y*=scale;
+//     return *this;
+// }
+
+TVector TVector::Scale(double h)
+{
+    return TVector( this->x*h, this->y*h );
 }
+
 
 TVector& TVector::operator+=(const TVector& v) {
 

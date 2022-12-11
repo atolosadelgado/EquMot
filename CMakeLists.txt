@@ -1,3 +1,7 @@
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# # Alvaro Tolosa Delgado 2022
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
 cmake_minimum_required(VERSION 3.22)
 project(BolasLocas)
 

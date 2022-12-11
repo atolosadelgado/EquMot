@@ -1,3 +1,6 @@
+// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //
+// //  Alvaro Tolosa Delgado 2022
+// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //
 
 #include "TParticle.hpp"
 
@@ -39,3 +42,20 @@ std::ostream& operator<<(std::ostream& os, const TParticle& v)
     os << v.pos;
     return os;
 }
+
+void TParticle_Test1()
+{
+    std::cout << __PRETTY_FUNCTION__ << std::endl;
+    TParticle a;
+    std::cout << a << std::endl;
+}
+
+void TParticle_Test2()
+{
+    std::cout << __PRETTY_FUNCTION__ << std::endl;
+    TParticle a, b;
+    std::cout << a.Force(b.pos) << std::endl;
+    std::cout << (a.pos+=b.pos) << std::endl;
+
+}
+

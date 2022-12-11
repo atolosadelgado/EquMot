@@ -1,4 +1,6 @@
-// Hello world
+// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //
+// //  Alvaro Tolosa Delgado 2022
+// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //
 
 #include <iostream>
 
@@ -11,20 +13,7 @@
 #include "TPlot.hpp"
 
 
-void Test1()
-{
-    std::cout << __PRETTY_FUNCTION__ << std::endl;
-    TParticle a;
-    std::cout << a << std::endl;
-}
 
-void Test2()
-{
-    TParticle a, b;
-    std::cout << a.Force(b.pos) << std::endl;
-    std::cout << (a.pos+=b.pos) << std::endl;
-
-}
 
 int main() {
 

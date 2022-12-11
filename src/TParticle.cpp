@@ -22,7 +22,7 @@ TVector TParticle::Force( TVector & ipos) {
 };
 
 double TParticle::Vene( TVector & r ) {
-    return f_constant/pos.distance(r);
+    return -f_constant/pos.distance(r);
 };
 double TParticle::Mene( TVector & r ) {
     return Kene()+Vene(r);

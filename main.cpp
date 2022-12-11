@@ -14,6 +14,7 @@
 
 #include <vector>
 #include <iomanip>
+#include <fstream>
 
 class TIntegrator
 {
@@ -25,7 +26,8 @@ public:
     void PlotPositions(TPlot & plt);
     double h = {0.1};
     int step = {0};
-    int nrefresh = {1};
+    int nrefresh = {5};
+    double GetMene(double * Kene, double * Vene);
     void PrintMene();
     void CheckDistances();
     void IntegratorEulerFw( std::vector<TVector> & forces);
@@ -35,21 +37,32 @@ public:
 
 TIntegrator::TIntegrator():particle_v(2) {}
 
+double TIntegrator::GetMene(double* Kene = nullptr, double* Vene = nullptr)
+{
+    double _Kene = 0;
+    double _Vene = 0;
+    for( auto particle : particle_v)
+    {
+        const int id = particle.id;
+        _Kene += particle.Kene();
+        for( auto aux : particle_v)
+        {
+            if( id == aux.id ) continue;
+            _Vene += aux.Vene( particle.pos );
+        }
+
+    }
+    if( Kene ) *Kene = _Kene;
+    if( Vene ) *Vene = _Vene;
+    return _Vene+_Kene;
+}
+
+
 void TIntegrator::PrintMene()
 {
     double Kene = 0;
     double Vene = 0;
-    for( auto particle : particle_v)
-    {
-        const int id = particle.id;
-        Kene += particle.Kene();
-        for( auto aux : particle_v)
-        {
-            if( id == aux.id ) continue;
-            Vene += -1*aux.Vene( particle.pos );
-        }
-
-    }
+    GetMene( &Kene,  &Vene);
     std::cout << std::scientific << std::setprecision(3)
               << "Step\t" << step
               << "\tMene\t" << Kene+Vene
@@ -96,8 +109,8 @@ void TIntegrator::DoStep()
         }
     }
     // apply the force and do the actual step
-//     IntegratorEulerFw(force_v);
-    IntegratorVerlet(force_v);
+    IntegratorEulerFw(force_v);
+//     IntegratorVerlet(force_v);
 
 
     return;
@@ -187,17 +200,19 @@ int main() {
 
     myIntegrator.PlotPositions(plt);
 
-//     std::cin.ignore();
+//     std::ofstream ofile("EulerFW.txt");
 
 
-    for( int i = 0; i < 10000; ++i)
+    for( int i = 0; i < 5000; ++i)
     {
         myIntegrator.DoStep();
-        std::cin.ignore();
         myIntegrator.CheckDistances();
         myIntegrator.PlotPositions(plt);
         myIntegrator.PrintMene();
+//         ofile << myIntegrator.GetMene() << std::endl;
 
     }
+
+//     ofile.close();
 
 }

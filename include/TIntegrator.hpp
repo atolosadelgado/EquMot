@@ -10,6 +10,8 @@
 
 #include "TPlot.hpp"
 
+#include <vector>
+
 class TIntegrator
 {
 public:
@@ -18,17 +20,22 @@ public:
 
     std::vector<TParticle> particle_v;
 
-    void DoStep();
-    void PlotPositions(TPlot & plt);
     double h = {0.1};
     int step = {0};
     int nrefresh = {5};
+
+    void DoStep();
+    void PlotPositions(TPlot & plt);
 
     void SetNparticlesRnd(int n);
 
     double GetMene(double * Kene = nullptr, double * Vene = nullptr);
     void PrintMene();
+
     void CheckDistances();
+
+private:
+
 
     void IntegratorEulerFw( std::vector<TVector> & forces);
 

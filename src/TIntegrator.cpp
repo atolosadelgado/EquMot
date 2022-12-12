@@ -1,13 +1,11 @@
-
+// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //
+// //  Alvaro Tolosa Delgado 2022
+// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //
 
 #include "TIntegrator.hpp"
 
-#include "TParticle.hpp"
-#include "TVector.hpp"
-
-
 #include <iomanip>
-
+#include <iostream>
 #include <thread>
 
 TIntegrator::TIntegrator(){}

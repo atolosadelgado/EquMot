@@ -2,20 +2,13 @@
 // //  Alvaro Tolosa Delgado 2022
 // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //
 
-#include <iostream>
 
-
-#include "TVector.hpp"
-
-#include "TParticle.hpp"
 
 #include "TPlot.hpp"
-
 #include "TIntegrator.hpp"
 
-#include <vector>
 #include <fstream>
-
+#include <iostream>
 
 int main() {
 

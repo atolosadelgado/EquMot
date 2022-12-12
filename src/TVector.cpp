@@ -6,8 +6,13 @@
 #include "TVector.hpp"
 
 
+/// Fixed seed to keep reproducibility
 unsigned seed = 1; // std::chrono::system_clock::now().time_since_epoch().count();
+
+/// Random generator
 std::default_random_engine generator (seed);
+
+/// Random distribution to place the particles
 std::uniform_real_distribution<double> rnd_position (-100.,100.);
 
 
@@ -23,6 +28,7 @@ void TVector::Set(  TVector & v ) {
 void TVector::SetRnd() {
     x=rnd_position(generator);
     y=rnd_position(generator);
+    return;
 };
 
 
@@ -40,11 +46,9 @@ double TVector::distance( TVector & v,  TVector & vv) {
     return std::sqrt( pow(vv.x -v.x,2) + pow(vv.y-v.y,2));
 }
 
-// TVector & TVector::operator * (double const & scale) {
-//     this->x*=scale;
-//     this->y*=scale;
-//     return *this;
-// }
+TVector TVector::operator * (double const & h) {
+    return TVector( this->x*h, this->y*h );
+}
 
 TVector TVector::Scale(double h)
 {
@@ -63,4 +67,11 @@ std::ostream& operator<<(std::ostream& os, const TVector& v)
 {
     os <<  '\t' << v.x << ' ' << v.y << std::endl; ;
     return os;
+}
+
+void TVector_Test1()
+{
+    TVector a(1.,0.);
+    std::cout << (a*3.5).Norm() << std::endl;
+    return;
 }

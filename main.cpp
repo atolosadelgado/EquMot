@@ -13,6 +13,9 @@
 int main() {
 
 
+    std::cin.ignore();
+
+
     TPlot plt;
 
     TIntegrator myIntegrator;

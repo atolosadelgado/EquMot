@@ -21,15 +21,20 @@ class TIntegrator
 public:
 
     TIntegrator();
+
     std::vector<TParticle> particle_v;
     void DoStep();
     void PlotPositions(TPlot & plt);
     double h = {0.1};
     int step = {0};
     int nrefresh = {5};
+
+    void SetNparticlesRnd(int n);
+
     double GetMene(double * Kene, double * Vene);
     void PrintMene();
     void CheckDistances();
+
     void IntegratorEulerFw( std::vector<TVector> & forces);
 
     void IntegratorVerlet(std::vector< TVector >& force_v);
@@ -160,6 +165,10 @@ void TIntegrator::IntegratorVerlet(std::vector<TVector>& force_v)
 
 }
 
+void TIntegrator::SetNparticlesRnd(int n)
+{
+    particle_v = std::vector<TParticle>(n);
+}
 
 
 void TIntegrator::CheckDistances()
@@ -186,6 +195,8 @@ int main() {
     TPlot plt;
 
     TIntegrator myIntegrator;
+
+    myIntegrator.SetNparticlesRnd(2);
 
     myIntegrator.particle_v[0].pos.x = -30;
     myIntegrator.particle_v[0].pos.y = 0;

@@ -12,7 +12,7 @@ TParticle::TParticle () {
 };
 
 double TParticle::Kene() const {
-    return 0.5*vel.Norm2();
+    return 0.5*mass*vel.Norm2();
 }
 
 TVector TParticle::Force( TParticle & ipar ) {
@@ -27,6 +27,12 @@ double TParticle::Vene( TParticle & ipar ) {
 double TParticle::Mene( TParticle & ipar ) {
     return Kene()+Vene(ipar);
 };
+
+void TParticle::SetFixPosition()
+{
+    isFixed = true;
+    return;
+}
 
 
 

@@ -23,6 +23,10 @@ public:
     /// Mass/charge
     double mass = {1.0};
 
+
+    /// If fixed, position will not be updated
+    bool isFixed = {false};
+
     /// Id number of the particle
     int id = {0};
 
@@ -43,6 +47,9 @@ public:
 
     /// To be deprecated
     double Mene( TParticle & r );
+
+    /// Set fix position, do not update the position/velocity
+    void SetFixPosition();
 
     friend std::ostream& operator<<(std::ostream& os, const TParticle& v);
 };

@@ -32,10 +32,9 @@ int main() {
     myIntegrator.particle_v[1].vel.x = 0;
     myIntegrator.particle_v[1].vel.y = 3;
 
-
     myIntegrator.PlotPositions(plt);
 
-    std::ofstream ofile("EulerFW_2.txt");
+    std::ofstream ofile("Verlet_2.txt");
 
 
     for( int i = 0; i < 5000; ++i)

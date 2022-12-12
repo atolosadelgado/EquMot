@@ -24,13 +24,14 @@ TPlot::TPlot()
 
 void TPlot::StartPlot()
 {
-    fprintf( plotHandle, "plot '-'\n");
+//     fprintf( plotHandle, "plot '-'\n");
+    fprintf( plotHandle, "plot '-' w circles lc 1 fs solid\n");
 }
 
 
 void TPlot::AddPoint(TVector& v)
 {
-    fprintf( plotHandle, "%g %g\n", v.x, v.y);
+    fprintf( plotHandle, "%g %g 1.5\n", v.x, v.y);
 }
 
 void TPlot::ShowPlot()

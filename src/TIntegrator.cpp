@@ -82,8 +82,8 @@ void TIntegrator::DoStep()
         }
     }
     // apply the force and do the actual step
-    IntegratorEulerFw(force_v);
-//     IntegratorVerlet(force_v);
+//     IntegratorEulerFw(force_v);
+    IntegratorVerlet(force_v);
 
 
     return;
@@ -96,6 +96,7 @@ void TIntegrator::IntegratorEulerFw(std::vector<TVector>& force_v)
 
     for( ; particle_i != particle_v.end(); ++force_i, ++particle_i)
     {
+        if( particle_i->isFixed ) continue;
         particle_i->pos += particle_i->vel.Scale(h);;
         particle_i->pos += (*force_i).Scale(0.5*h*h);
         particle_i->vel += (*force_i).Scale(h);
@@ -108,6 +109,7 @@ void TIntegrator::IntegratorVerlet(std::vector<TVector>& force_v)
     auto particle_i = particle_v.begin();
     for( ; particle_i != particle_v.end(); ++force_i, ++particle_i)
     {
+        if( particle_i->isFixed ) continue;
         particle_i->pos += particle_i->vel.Scale(h);
         particle_i->pos += (*force_i).Scale(0.5*h*h);
     }
@@ -119,6 +121,7 @@ void TIntegrator::IntegratorVerlet(std::vector<TVector>& force_v)
 
         for( ; particle_i != particle_v.end(); ++force_i, ++particle_i)
         {
+            if( particle_i->isFixed ) continue;
             const int id = particle_i->id;
             for( auto aux : particle_v)
             {

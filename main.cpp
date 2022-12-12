@@ -48,7 +48,7 @@ double TIntegrator::GetMene(double* Kene = nullptr, double* Vene = nullptr)
         for( auto aux : particle_v)
         {
             if( id == aux.id ) continue;
-            _Vene += aux.Vene( particle.pos );
+            _Vene += aux.Vene( particle );
         }
 
     }
@@ -103,7 +103,7 @@ void TIntegrator::DoStep()
             for( auto aux : particle_v)
             {
                 if( id == aux.id ) continue;
-                *force_i += aux.Force( particle_i->pos );
+                *force_i += aux.Force( *particle_i );
             }
 
         }
@@ -150,7 +150,7 @@ void TIntegrator::IntegratorVerlet(std::vector<TVector>& force_v)
             for( auto aux : particle_v)
             {
                 if( id == aux.id ) continue;
-                *force_i += aux.Force( particle_i->pos );
+                *force_i += aux.Force( *particle_i );
             }
             // update Velocity
             particle_i->vel += (( *force_i ).Scale(0.5*h));
@@ -200,7 +200,7 @@ int main() {
 
     myIntegrator.PlotPositions(plt);
 
-//     std::ofstream ofile("EulerFW.txt");
+    std::ofstream ofile("EulerFW_2.txt");
 
 
     for( int i = 0; i < 5000; ++i)
@@ -209,10 +209,10 @@ int main() {
         myIntegrator.CheckDistances();
         myIntegrator.PlotPositions(plt);
         myIntegrator.PrintMene();
-//         ofile << myIntegrator.GetMene() << std::endl;
+        ofile << myIntegrator.GetMene() << std::endl;
 
     }
 
-//     ofile.close();
+    ofile.close();
 
 }

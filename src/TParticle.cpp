@@ -15,17 +15,17 @@ double TParticle::Kene() const {
     return 0.5*vel.Norm2();
 }
 
-TVector TParticle::Force( TVector & ipos) {
-    auto d = pos.distance(ipos);
+TVector TParticle::Force( TParticle & ipar ) {
+    auto d = pos.distance(ipar.pos);
     d=pow(d,3);
-    return TVector( -f_constant*(ipos.x - pos.x)/d, -f_constant*(ipos.y - pos.y)/d);
+    return TVector( -f_constant*(ipar.pos.x - pos.x)/d, -f_constant*(ipar.pos.y - pos.y)/d);
 };
 
-double TParticle::Vene( TVector & r ) {
-    return -f_constant/pos.distance(r);
+double TParticle::Vene( TParticle & ipar ) {
+    return -f_constant/pos.distance(ipar.pos);
 };
-double TParticle::Mene( TVector & r ) {
-    return Kene()+Vene(r);
+double TParticle::Mene( TParticle & ipar ) {
+    return Kene()+Vene(ipar);
 };
 
 
@@ -58,7 +58,7 @@ void TParticle_Test2()
 {
     std::cout << __PRETTY_FUNCTION__ << std::endl;
     TParticle a, b;
-    std::cout << a.Force(b.pos) << std::endl;
+    std::cout << a.Force(b) << std::endl;
     std::cout << (a.pos+=b.pos) << std::endl;
 
 }

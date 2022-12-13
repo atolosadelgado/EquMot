@@ -52,7 +52,9 @@ void TIntegrator::PlotPositions(TPlot& plt)
     for( auto & particle : particle_v )
     {
         plt.AddPoint( particle.pos );
+#ifdef NDEBUG
         std::cout << particle << std::endl;
+#endif
     }
 
     plt.ShowPlot();
@@ -98,8 +100,8 @@ void TIntegrator::IntegratorEulerFw(std::vector<TVector>& force_v)
     {
         if( particle_i->isFixed ) continue;
         particle_i->pos += particle_i->vel.Scale(h);;
-        particle_i->pos += (*force_i).Scale(0.5*h*h);
-        particle_i->vel += (*force_i).Scale(h);
+        particle_i->pos += (*force_i).Scale(0.5*h*h).Scale( 1./particle_i->mass );
+        particle_i->vel += (*force_i).Scale(h).Scale( 1./particle_i->mass );
     }
 }
 
@@ -111,7 +113,7 @@ void TIntegrator::IntegratorVerlet(std::vector<TVector>& force_v)
     {
         if( particle_i->isFixed ) continue;
         particle_i->pos += particle_i->vel.Scale(h);
-        particle_i->pos += (*force_i).Scale(0.5*h*h);
+        particle_i->pos += (*force_i).Scale(0.5*h*h).Scale( 1./particle_i->mass );
     }
 
     //recalculate forces at new positions, and sum force at the next position to the previous calculated force
@@ -129,7 +131,7 @@ void TIntegrator::IntegratorVerlet(std::vector<TVector>& force_v)
                 *force_i += aux.Force( *particle_i );
             }
             // update Velocity
-            particle_i->vel += (( *force_i ).Scale(0.5*h));
+            particle_i->vel += (( *force_i ).Scale(0.5*h).Scale( 1./particle_i->mass ));
 
         }
     }

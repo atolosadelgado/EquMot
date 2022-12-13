@@ -10,12 +10,8 @@
 #include <fstream>
 #include <iostream>
 
-int main() {
-
-
-    std::cin.ignore();
-
-
+void Test_ensemble()
+{
     TPlot plt;
 
     TIntegrator myIntegrator;
@@ -49,4 +45,9 @@ int main() {
 
     ofile.close();
 
+}
+
+int main()
+{
+    Test_ensemble();
 }

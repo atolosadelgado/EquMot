@@ -102,6 +102,12 @@ const double earth_obital_speed = 29.78e3; // m/s
 const double earth_obital_speed_UA = 29.78e3/UA_m; // UA/s
 
 
+const double moon_distance_to_earth = 384400e3; //m
+const double moon_mass =  7.342e22; //kg
+const double moon_obital_speed = 1.0e3; // m/s
+const double moon_obital_speed_UA = moon_obital_speed/UA_m; // UA/s
+
+
 
 const double saturn_distance = 9.5; //UA
 const double saturn_mass= 5.683e26; //kg
@@ -119,8 +125,7 @@ const double seconds_per_year = 365.26*24*3600;
 const double G_UA_MSun_yr = G_SI / pow(1.495978707, 3) * 1.989e-3 * pow(seconds_per_year,2); // UA3 msun-1 s-2
 const double earth_obital_speed_UA_yr = earth_obital_speed/UA_m*seconds_per_year; // m/s
 
-
-int main()
+void Test_SS()
 {
 
     TPlot plt;
@@ -180,6 +185,75 @@ int main()
     std::ofstream ofile("Verlet_2.txt");
 
     for( int i = 0; i < 500000; ++i)
+    {
+        myIntegrator.DoStep();
+        myIntegrator.CheckDistances();
+        myIntegrator.PlotPositions(plt);
+//         myIntegrator.PrintMene();
+
+//         std::cin.ignore();
+        if( 0 == i % 10 )  ofile << myIntegrator.GetMene() << std::endl;
+
+    }
+
+    ofile.close();
+
+
+}
+
+int main()
+{
+
+    TPlot plt;
+
+    TIntegrator myIntegrator;
+    myIntegrator.h = 3600;
+    myIntegrator.nrefresh = 100;
+
+    TParticle::f_constant = G_UA_MSun;
+
+    myIntegrator.SetNparticlesRnd(3);
+
+    // Sun
+    myIntegrator.particle_v[0].pos.x = 0;
+    myIntegrator.particle_v[0].pos.y = 0;
+    myIntegrator.particle_v[0].vel.x = 0;
+    myIntegrator.particle_v[0].vel.y = 0;
+    myIntegrator.particle_v[0].mass = 1.0;
+    myIntegrator.particle_v[0].isFixed = true;
+
+
+    std::cout << myIntegrator.particle_v[0] << std::endl;
+
+
+
+    // Earth
+    myIntegrator.particle_v[1].pos.x = 1.;
+    myIntegrator.particle_v[1].pos.y = 0;
+    myIntegrator.particle_v[1].vel.x = 0;
+    myIntegrator.particle_v[1].vel.y = earth_obital_speed_UA;
+    myIntegrator.particle_v[1].mass =  mass_earth / mass_sun;
+    std::cout << myIntegrator.particle_v[1] << std::endl;
+
+
+
+    // Moon
+    myIntegrator.particle_v[2].pos.x = 1 - moon_distance_to_earth/UA_m;
+    myIntegrator.particle_v[2].pos.y = 0;
+    myIntegrator.particle_v[2].vel.x = 0;
+    myIntegrator.particle_v[2].vel.y = earth_obital_speed_UA - moon_obital_speed_UA;
+    myIntegrator.particle_v[2].mass =  moon_mass / mass_sun;
+    std::cout << myIntegrator.particle_v[2] << std::endl;
+
+
+
+    myIntegrator.PlotPositions(plt);
+
+
+
+    std::ofstream ofile("Verlet_2.txt");
+
+    for( int i = 0; i < 50000; ++i)
     {
         myIntegrator.DoStep();
         myIntegrator.CheckDistances();

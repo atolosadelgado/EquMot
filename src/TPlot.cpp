@@ -17,8 +17,8 @@ TPlot::TPlot()
     fprintf(plotHandle,"set terminal qt\n");
     fprintf(plotHandle,"set xlabel \"x\"\n");
     fprintf(plotHandle,"set ylabel \"y\"\n");
-    fprintf(plotHandle,"set xrange [-15:15]\n");
-    fprintf(plotHandle,"set yrange [-15:15]\n");
+    fprintf(plotHandle,"set xrange [-1.2:1.2]\n");
+    fprintf(plotHandle,"set yrange [-1.2:1.2]\n");
     fprintf(plotHandle,"set grid\n");
 }
 

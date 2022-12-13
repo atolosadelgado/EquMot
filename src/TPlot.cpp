@@ -17,8 +17,8 @@ TPlot::TPlot()
     fprintf(plotHandle,"set terminal qt\n");
     fprintf(plotHandle,"set xlabel \"x\"\n");
     fprintf(plotHandle,"set ylabel \"y\"\n");
-    fprintf(plotHandle,"set xrange [-100:100]\n");
-    fprintf(plotHandle,"set yrange [-100:100]\n");
+    fprintf(plotHandle,"set xrange [-2:2]\n");
+    fprintf(plotHandle,"set yrange [-2:2]\n");
     fprintf(plotHandle,"set grid\n");
 }
 
@@ -31,7 +31,7 @@ void TPlot::StartPlot()
 
 void TPlot::AddPoint(TVector& v)
 {
-    fprintf( plotHandle, "%g %g 1.5\n", v.x, v.y);
+    fprintf( plotHandle, "%g %g 0.05\n", v.x, v.y);
 }
 
 void TPlot::ShowPlot()

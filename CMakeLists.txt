@@ -17,3 +17,11 @@ target_link_libraries( tintegrator tparticle tvector)
 target_link_libraries(main tvector tparticle tplot tintegrator)
 
 set_property(TARGET main PROPERTY CXX_STANDARD 11)
+
+find_program(GNUPLOT NAMES   gnuplot pgnuplot PATH  /bin  /usr/bin   /usr/local/bin  /sbin )
+
+if(NOT GNUPLOT)
+    message(WARNING "gnuplot not found!")
+else()
+    add_compile_definitions(GNUPLOT)
+endif()

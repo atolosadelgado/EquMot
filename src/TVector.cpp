@@ -13,7 +13,7 @@ unsigned seed = 1; // std::chrono::system_clock::now().time_since_epoch().count(
 std::default_random_engine generator (seed);
 
 /// Random distribution to place the particles
-std::uniform_real_distribution<double> rnd_position (-100.,100.);
+std::uniform_real_distribution<double> rnd_position (-1.,1.);
 
 
 TVector::TVector(double ix, double iy):x(ix),y(iy) {};

@@ -52,6 +52,9 @@ public:
     /// Return vector scaled by factor h
     TVector Scale(double h);
 
+    /// Add vector v scaled by factor h
+    void Add(TVector & v, double h);
+
     friend std::ostream& operator<<(std::ostream& os, const TVector& v);
 
     /// Custom operator to sum another vector to this vector

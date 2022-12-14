@@ -55,6 +55,13 @@ TVector TVector::Scale(double h)
     return TVector( this->x*h, this->y*h );
 }
 
+void TVector::Add(TVector& v, double h)
+{
+    this->x += h*v.x;
+    this->y += h*v.y;
+    return;
+}
+
 
 TVector& TVector::operator+=(const TVector& v) {
 

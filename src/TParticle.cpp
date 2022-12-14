@@ -6,8 +6,8 @@
 
 TParticle::TParticle () {
     pos.SetRnd();
-    vel.x = pos.x;
-    vel.y = pos.y;
+    vel.x = 0;
+    vel.y = 0;
     id = (++nparticles);
 };
 

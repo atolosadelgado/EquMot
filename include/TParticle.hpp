@@ -20,9 +20,11 @@ public:
     /// Vecocity
     TVector vel;
 
-    /// Mass/charge
+    /// Mass
     double mass = {1.0};
 
+    /// force
+    TVector force;
 
     /// If fixed, position will not be updated
     bool isFixed = {false};

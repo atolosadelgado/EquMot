@@ -345,7 +345,7 @@ std::uniform_real_distribution<double> rnd_vel (-earth_obital_speed_UA,earth_obi
 
 //     std::ofstream ofile("Verlet_2.txt");
 
-    for( int i = 0; i < 5000; ++i)
+    for( int i = 0; i < 500; ++i)
     {
         myIntegrator.DoStep();
 //         myIntegrator.CheckDistances();
@@ -354,7 +354,7 @@ std::uniform_real_distribution<double> rnd_vel (-earth_obital_speed_UA,earth_obi
 
 //         std::cin.ignore();
 //         if( 0 == i % 10 )  ofile << myIntegrator.GetMene() << std::endl;
-        if( 0 == i % 1000 ) std::cout << "Step " << i << std::endl;
+        if( 0 == i % 100 ) std::cout << "Step " << i << std::endl;
 
     }
 

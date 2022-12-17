@@ -13,7 +13,7 @@ TPlot::TPlot()
 
     if(plotHandle == NULL)
     {
-        std::runtime_error("Can not open pipe to GNU plot");
+        throw std::runtime_error("Can not open pipe to GNU plot");
     }
 
     fprintf(plotHandle,"set terminal qt\n");

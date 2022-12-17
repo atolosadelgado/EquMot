@@ -160,7 +160,7 @@ void TIntegrator::CheckDistances()
         {
             if( id == aux.id ) continue;
             if( 1 > aux.pos.distance( particle.pos ) )
-                std::runtime_error("Too close particles!!\n");
+                throw std::runtime_error("Too close particles!!\n");
         }
 
     }

@@ -8,7 +8,7 @@
 #include <iostream>
 #include <thread>
 
-TIntegrator::TIntegrator(){}
+TIntegrator::TIntegrator() {}
 
 double TIntegrator::GetMene(double* Kene, double* Vene)
 {
@@ -46,7 +46,7 @@ void TIntegrator::PrintMene()
 
 void TIntegrator::PlotPositions(TPlot& plt)
 {
-  if( 0 != step % nrefresh ) return;
+    if( 0 != step % nrefresh ) return;
     plt.StartPlot();
 
     for( auto & particle : particle_v )
@@ -62,27 +62,88 @@ void TIntegrator::PlotPositions(TPlot& plt)
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 }
 
-void TIntegrator::DoStep()
+void TIntegrator::CalculateForce(std::vector<TVector>& force_v)
 {
-
-    ++step;
-    std::vector<TVector> force_v( particle_v.size() );
     // For each particle, sum up the force of the other particles
+//     auto force_i = force_v.begin();
+//     auto particle_i = particle_v.begin();
+
+    #pragma omp parallel for
+    for( int i = 0 ; i < nparticles ; ++i)
     {
-        auto force_i = force_v.begin();
-        auto particle_i = particle_v.begin();
-
-        for( ; particle_i != particle_v.end(); ++force_i, ++particle_i)
+        const int id = particle_v[i].id;
+        for( auto aux : particle_v)
         {
-            const int id = particle_i->id;
-            for( auto aux : particle_v)
-            {
-                if( id == aux.id ) continue;
-                *force_i += aux.Force( *particle_i );
-            }
+            if( id == aux.id ) continue;
+            force_v[i] += aux.Force( particle_v[i] );
+        }
 
+    }
+//     for( ; particle_i != particle_v.end(); ++force_i, ++particle_i)
+//     {
+//         const int id = particle_i->id;
+//         for( auto aux : particle_v)
+//         {
+//             if( id == aux.id ) continue;
+//             *force_i += aux.Force( *particle_i );
+//         }
+//
+//     }
+    return;
+}
+
+void TIntegrator::CalculateForceTriang(std::vector<TVector>& f)
+{
+    if( 1 >= nparticles ) return;
+    /// First reset the matrix
+    TVector a(0.,0.);
+    std::fill( forces_m.matrix.begin(), forces_m.matrix.end(), a);
+//  Paralelizable aproach
+    #pragma omp parallel for
+    for( int particle_row = 0; particle_row < nparticles; ++particle_row)
+    {
+        for( int particle_col = particle_row+1; particle_col < nparticles; ++particle_col)
+        {
+//             forces_m.SetVal( particle_row +1, particle_col +1, particle_v[particle_row].Force( particle_v[particle_col] ));
+            forces_m.at( particle_row +1, particle_col +1) = ( particle_v[particle_row].Force( particle_v[particle_col] ));
         }
     }
+    #pragma omp parallel for
+    for( int particle_row = 0; particle_row < nparticles; ++particle_row)
+    {
+        for( int particle_col = 0; particle_col < nparticles; ++particle_col)
+        {
+            if( particle_col == particle_row ) continue;
+            f[particle_row] += forces_m.GetVal( particle_row+1, particle_col +1 );
+        }
+    }
+
+//     for( int particle_row = 0; particle_row < nparticles; ++particle_row)
+//     {
+//         for( int particle_col = 0; particle_col < particle_row; ++particle_col)
+//         {
+//             f[particle_row] += forces_m.GetVal( particle_row+1 , particle_col +1 );
+//         }
+//         for( int particle_col = particle_row+1; particle_col < nparticles; ++particle_col)
+//         {
+//             auto v = particle_v[particle_row].Force( particle_v[particle_col] );
+//             forces_m.SetVal( particle_row +1, particle_col +1, v);
+//             f[particle_row] += v;
+//         }
+//     }
+
+
+    return;
+}
+
+
+void TIntegrator::DoStep()
+{
+    ++step;
+    std::vector<TVector> force_v( particle_v.size() );
+    CalculateForce( force_v );
+//     CalculateForceTriang( force_v );
+
     // apply the force and do the actual step
 //     IntegratorEulerFw(force_v);
     IntegratorVerlet(force_v);
@@ -102,7 +163,7 @@ void TIntegrator::IntegratorEulerFw(std::vector<TVector>& force_v)
 //         particle_i->pos += particle_i->vel.Scale(h);;
 //         particle_i->pos += (*force_i).Scale(0.5*h*h).Scale( 1./particle_i->mass );
 //         particle_i->vel += (*force_i).Scale(h).Scale( 1./particle_i->mass );
-        particle_i->pos.Add( particle_i->vel , h);;
+        particle_i->pos.Add( particle_i->vel, h);;
         particle_i->pos.Add( (*force_i), 0.5*h*h/particle_i->mass );
         particle_i->vel.Add( (*force_i), h/particle_i->mass );
 
@@ -147,6 +208,8 @@ void TIntegrator::IntegratorVerlet(std::vector<TVector>& force_v)
 void TIntegrator::SetNparticlesRnd(int n)
 {
     particle_v = std::vector<TParticle>(n);
+    forces_m.SetSize(n);
+    nparticles = n;
 }
 
 
@@ -159,7 +222,7 @@ void TIntegrator::CheckDistances()
         for( auto aux : particle_v)
         {
             if( id == aux.id ) continue;
-            if( 1 > aux.pos.distance( particle.pos ) )
+            if( 1e-9 > aux.pos.distance( particle.pos ) )
                 throw std::runtime_error("Too close particles!!\n");
         }
 

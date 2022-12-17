@@ -285,10 +285,10 @@ std::uniform_real_distribution<double> rnd_vel (-earth_obital_speed_UA,earth_obi
 void Test_TMatrix(int n = 10)
 {
     TMatrixtriang m(n);
-    const double dummyval = 3.1415;
+    TVector dummyval( 3.1415, 0);
     m.SetVal(1,2, dummyval);
     std::cout << m << std::endl;
-    if( dummyval != m.GetVal(2,1) )
+    if( dummyval.x != m.GetVal(2,1).x )
     {
         throw std::runtime_error("TMatrixtriang do not work\n");
     }
@@ -298,9 +298,11 @@ void Test_TMatrix(int n = 10)
 int main()
 {
 
+//     Test_SS();
+//     return 0;
 
-    Test_TMatrix();
-    return 0;
+
+
     TPlot plt;
 
     TIntegrator myIntegrator;
@@ -309,7 +311,7 @@ int main()
 
     TParticle::f_constant = G_UA_MSun;
 
-    myIntegrator.SetNparticlesRnd(100);
+    myIntegrator.SetNparticlesRnd(500);
 
     // Sun
     myIntegrator.particle_v[0].pos.x = 0;
@@ -346,7 +348,7 @@ int main()
 
 /// Random distribution to place the particles
 std::uniform_real_distribution<double> rnd_vel (-earth_obital_speed_UA,earth_obital_speed_UA);
-    for( int i=3; i<100; ++i)
+    for( int i=3; i<500; ++i)
     {
         myIntegrator.particle_v[i].mass =  moon_mass / mass_sun /100 ;
         myIntegrator.particle_v[i].vel.x = rnd_vel(generator) ;

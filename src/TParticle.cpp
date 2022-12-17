@@ -15,17 +15,17 @@ double TParticle::Kene() const {
     return 0.5*mass*vel.Norm2();
 }
 
-TVector TParticle::Force( TParticle & ipar ) {
-//     auto d = pos.distance(ipar.pos);
-//     d=pow(d,3);
-//     return TVector( -f_constant*ipar.mass*mass*(ipar.pos.x - pos.x)/d, -f_constant*ipar.mass*mass*(ipar.pos.y - pos.y)/d);
-//     auto d = pos.distance(ipar.pos);
-//     d=pow(d,3);
-    double dx = ipar.pos.x - pos.x;
-    double dy = ipar.pos.y - pos.y;
-    double d32= pow( dx*dx + dy*dy, 1.5);
-    return TVector( -f_constant*ipar.mass*mass*(dx)/d32, -f_constant*ipar.mass*mass*(dy)/d32);
-};
+// inline TVector TParticle::Force( TParticle & ipar ) {
+// //     auto d = pos.distance(ipar.pos);
+// //     d=pow(d,3);
+// //     return TVector( -f_constant*ipar.mass*mass*(ipar.pos.x - pos.x)/d, -f_constant*ipar.mass*mass*(ipar.pos.y - pos.y)/d);
+// //     auto d = pos.distance(ipar.pos);
+// //     d=pow(d,3);
+//     double dx = ipar.pos.x - pos.x;
+//     double dy = ipar.pos.y - pos.y;
+//     double d32= pow( dx*dx + dy*dy, 1.5);
+//     return TVector( -f_constant*ipar.mass*mass*(dx)/d32, -f_constant*ipar.mass*mass*(dy)/d32);
+// };
 
 double TParticle::Vene( TParticle & ipar ) {
     return -f_constant*mass*ipar.mass/pos.distance(ipar.pos);

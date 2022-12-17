@@ -4,11 +4,11 @@
 
 #include "TMatrixtriang.hpp"
 
-TMatrixtriang::TMatrixtriang():matrix(1, 0),_n(1){}
+TMatrixtriang::TMatrixtriang():matrix(1),_n(1){}
 
 /// Constructor to initialize the vector that correspond to a matrix nxn
 /// The number of non identical elements corresponds to the Gaus summation of the first n numbers
-TMatrixtriang::TMatrixtriang(int n):matrix(n*(n+1)/2 +1, 0),_n(n){}
+TMatrixtriang::TMatrixtriang(int n):matrix(n*(n+1)/2 +1),_n(n){}
 
 /// Resize the current matrix using std::vector::resize method
 void TMatrixtriang::SetSize(int n)
@@ -19,19 +19,30 @@ void TMatrixtriang::SetSize(int n)
 }
 
 /// Get Value from row,column position
-double TMatrixtriang::GetVal (int row, int column) const
+TVector TMatrixtriang::GetVal (int row, int column) const
 {
-    if( column < row ) std::swap(column, row);
-    return matrix[ column + (row-1)*( 2*_n-row)/2];
+    double swap_sign = 1.0;
+    if( column < row )
+    {
+        std::swap(column, row);
+        swap_sign = -1.0;
+    }
+    return TVector(-matrix[ column + (row-1)*( 2*_n-row)/2 -1].x, -matrix[ column + (row-1)*( 2*_n-row)/2 -1].y);
 }
 
 /// Set Value for row, column position
-void TMatrixtriang::SetVal(int row, int column, double value)
+void TMatrixtriang::SetVal(int row, int column, TVector & value)
 {
     if( column < row ) std::swap(column, row);
-    matrix[ column + (row-1)*( 2*_n-row)/2] = value;
+    matrix[ column + (row-1)*( 2*_n-row)/2 -1] = value;
     return;
 }
+
+TVector & TMatrixtriang::at(int row, int column)
+{
+    return matrix[ column + (row-1)*( 2*_n-row)/2 -1];
+}
+
 
 std::ostream& operator<<(std::ostream& os, const TMatrixtriang& v)
 {

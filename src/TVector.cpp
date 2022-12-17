@@ -72,7 +72,7 @@ TVector& TVector::operator+=(const TVector& v) {
 
 std::ostream& operator<<(std::ostream& os, const TVector& v)
 {
-    os <<  '\t' << v.x << ' ' << v.y << std::endl; ;
+    os <<  '[' << v.x << ',' << v.y << ']' ;
     return os;
 }
 

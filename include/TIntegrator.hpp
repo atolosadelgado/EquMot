@@ -11,6 +11,7 @@
 #include "TPlot.hpp"
 
 #include <vector>
+#include "TMatrixtriang.hpp"
 
 class TIntegrator
 {
@@ -20,6 +21,12 @@ public:
 
     /// Collection of particles
     std::vector<TParticle> particle_v;
+
+    /// Temporal storage of individual forces
+    TMatrixtriang forces_m;
+
+    /// number of particles
+    int nparticles = {0};
 
     /// Time step
     double h = {0.1};
@@ -32,6 +39,12 @@ public:
 
     /// Calculate potentials and do the actual step
     void DoStep();
+
+    /// Naive way of calculating the sum of foces for the ith particle
+    void CalculateForce( std::vector<TVector> & f );
+
+    /// Calculate force only for the i,j, i>j interaction and symmetrize using TMatrixtriang object
+    void CalculateForceTriang( std::vector<TVector> & f );
 
     /// Plot positions of collection of particles
     void PlotPositions(TPlot & plt);

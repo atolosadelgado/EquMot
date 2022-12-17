@@ -7,6 +7,8 @@
 #include "TPlot.hpp"
 #include "TIntegrator.hpp"
 
+#include "TMatrixtriang.hpp"
+
 #include <fstream>
 #include <iostream>
 
@@ -280,10 +282,25 @@ std::uniform_real_distribution<double> rnd_vel (-earth_obital_speed_UA,earth_obi
 
 }
 
+void Test_TMatrix(int n = 10)
+{
+    TMatrixtriang m(n);
+    const double dummyval = 3.1415;
+    m.SetVal(1,2, dummyval);
+    std::cout << m << std::endl;
+    if( dummyval != m.GetVal(2,1) )
+    {
+        throw std::runtime_error("TMatrixtriang do not work\n");
+    }
+    return;
+}
+
 int main()
 {
 
 
+    Test_TMatrix();
+    return 0;
     TPlot plt;
 
     TIntegrator myIntegrator;

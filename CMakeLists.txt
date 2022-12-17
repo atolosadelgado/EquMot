@@ -16,10 +16,11 @@ add_executable(main main.cpp)
 add_library( tvector SHARED src/TVector.cpp)
 add_library( tparticle SHARED src/TParticle.cpp)
 add_library( tplot SHARED src/TPlot.cpp)
+add_library( tmatrixtriang SHARED src/TMatrixtriang.cpp)
 add_library( tintegrator SHARED src/TIntegrator.cpp)
 target_link_libraries( tintegrator tparticle tvector)
 
-target_link_libraries(main tvector tparticle tplot tintegrator)
+target_link_libraries(main tvector tparticle tplot tintegrator tmatrixtriang)
 
 set_property(TARGET main PROPERTY CXX_STANDARD 11)
 

@@ -12,7 +12,10 @@
 
 #include "Contants.hpp"
 
-TIntegrator::TIntegrator() { CalculateForce = [&](std::vector<TVector> & f){ this->CalculateForceSimple(f); return;}; }
+TIntegrator::TIntegrator() {
+    SetForceCalSimple();
+    SetIntegratorVerlet();
+}
 
 double TIntegrator::GetMene(double* Kene, double* Vene)
 {
@@ -66,10 +69,10 @@ void TIntegrator::PlotPositions(TPlot& plt)
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 }
 
-void TIntegrator::CalculateForceParCXX(std::vector<TVector> & f)
+void TIntegrator::CalculateForceSimpleParCXX(std::vector<TVector> & f)
 {
-//     for_each( std::execution::par_unseq, particle_v.begin(), particle_v.end(), [](TParticle & p) {
-    for_each( particle_v.begin(), particle_v.end(), [](TParticle & p) {
+    for_each( std::execution::par, particle_v.begin(), particle_v.end(), [](TParticle & p) {
+//     for_each( particle_v.begin(), particle_v.end(), [](TParticle & p) {
         p.force.x =0;
         p.force.y=0;
         return;
@@ -86,10 +89,12 @@ void TIntegrator::CalculateForceParCXX(std::vector<TVector> & f)
 
     };
 
-//     for_each(std::execution::par_unseq, particle_v.begin(), particle_v.end(), ff);
-    for_each(particle_v.begin(), particle_v.end(), ff);
+    for_each(std::execution::par, particle_v.begin(), particle_v.end(), ff);
+//     for_each(particle_v.begin(), particle_v.end(), ff);
 
-    std::transform( particle_v.begin(), particle_v.end(), f.begin(), [](TParticle & p){return p.force;} );
+    std::transform(std::execution::par,  particle_v.begin(), particle_v.end(), f.begin(), [](TParticle & p) {
+        return p.force;
+    } );
 
 
 }
@@ -166,7 +171,7 @@ void TIntegrator::CalculateForceTriang(std::vector<TVector>& f)
     {
         for( int particle_col = 0; particle_col < particle_row; ++particle_col)
         {
-            f[particle_row] += forces_m.GetVal( particle_row+1 , particle_col +1 );
+            f[particle_row] += forces_m.GetVal( particle_row+1, particle_col +1 );
         }
         for( int particle_col = particle_row+1; particle_col < nparticles; ++particle_col)
         {
@@ -184,18 +189,67 @@ void TIntegrator::CalculateForceTriang(std::vector<TVector>& f)
 void TIntegrator::DoStep()
 {
     ++step;
+
     std::vector<TVector> force_v( particle_v.size() );
+
     CalculateForce( force_v );
-//     CalculateForcePar();
-//     CalculateForceTriang( force_v );
 
-    // apply the force and do the actual step
-//     IntegratorEulerFw(force_v);
-    IntegratorVerlet(force_v);
-
+    TheIntegrator(force_v);
 
     return;
 }
+
+void TIntegrator::DoStepCXX()
+{
+    ++step;
+
+    // first step of Verlet algorithm
+
+    {
+        auto ff = [&](TParticle & particle_i)
+        {
+
+            if( particle_i.isFixed ) return;
+            const int id = particle_i.id;
+            particle_i.force.x = 0;
+            particle_i.force.y = 0;
+            for( auto aux : particle_v)
+            {
+                if( id == aux.id ) continue;
+                particle_i.force += aux.Force( particle_i );
+            }
+            particle_i.pos.Add( particle_i.vel, h);
+            particle_i.pos.Add( particle_i.force, 0.5*h*h/particle_i.mass );
+            return;
+        };
+        for_each(std::execution::par, particle_v.begin(), particle_v.end(), ff);
+
+    }
+
+
+    //recalculate forces at new positions, and sum force at the next position to the previous calculated force
+    {
+
+        auto ff = [&](TParticle & particle_i) {
+            if( particle_i.isFixed ) return;
+            const int id = particle_i.id;
+            for( auto aux : particle_v)
+            {
+                if( id == aux.id ) continue;
+                particle_i.force += aux.Force( particle_i );
+            }
+            // update Velocity
+            particle_i.vel.Add( particle_i.force, 0.5*h/particle_i.mass );
+
+
+        };
+
+        for_each(std::execution::par, particle_v.begin(), particle_v.end(), ff);
+
+    }
+
+}
+
 
 void TIntegrator::IntegratorEulerFw(std::vector<TVector>& force_v)
 {
@@ -247,7 +301,60 @@ void TIntegrator::IntegratorVerlet(std::vector<TVector>& force_v)
 
         }
     }
+    return;
+}
 
+void TIntegrator::IntegratorVerletPar(std::vector<TVector>& force_v)
+{
+
+    // first step of Verlet algorithm
+
+    {
+        auto ff = [&](TParticle & particle_i, TVector & force_i)
+        {
+
+            if( particle_i.isFixed ) return force_i;
+            particle_i.pos.Add( particle_i.vel, h);
+            particle_i.pos.Add( force_i, 0.5*h*h/particle_i.mass );
+            particle_i.force = force_i;
+            return force_i;
+        };
+        std::transform( std::execution::par,
+                        particle_v.begin(),
+                        particle_v.end(),
+                        force_v.begin(),
+                        force_v.begin(),
+                        ff
+                      );
+    }
+
+
+
+
+
+
+
+    //recalculate forces at new positions, and sum force at the next position to the previous calculated force
+    {
+
+        auto ff = [&](TParticle & particle_i) {
+            if( particle_i.isFixed ) return;
+            const int id = particle_i.id;
+            for( auto aux : particle_v)
+            {
+                if( id == aux.id ) continue;
+                particle_i.force += aux.Force( particle_i );
+            }
+            // update Velocity
+            particle_i.vel.Add( particle_i.force, 0.5*h/particle_i.mass );
+
+
+        };
+
+        for_each(std::execution::par, particle_v.begin(), particle_v.end(), ff);
+
+    }
+    return;
 }
 
 void TIntegrator::SetNparticlesRnd(int n)
@@ -275,9 +382,9 @@ void TIntegrator::CheckDistances()
 
 }
 
-void TIntegrator::Test_benchmark_force_calculation(int i)
+void TIntegrator::Test_benchmark_force_calculation(int i_forceMethod, int i_i_integratorMethod )
 {
-        TIntegrator myIntegrator;
+    TIntegrator myIntegrator;
 
     myIntegrator.h = 3600;
 
@@ -286,12 +393,39 @@ void TIntegrator::Test_benchmark_force_calculation(int i)
     myIntegrator.SetNparticlesRnd(500);
     myIntegrator.SetForceCalSimple();
 
-    switch(i)
+    switch(i_forceMethod)
     {
-        case 1: myIntegrator.SetForceCalSimple();    break;
-        case 2: myIntegrator.SetForceCalSimplePar(); break;
-        case 3: myIntegrator.SetForceCalTriang();    break;
-        case 4: myIntegrator.SetForceCalTriangPar(); break;
+    case 1:
+        myIntegrator.SetForceCalSimple();
+        break;
+    case 2:
+        myIntegrator.SetForceCalSimplePar();
+        break;
+    case 3:
+        myIntegrator.SetForceCalTriang();
+        break;
+    case 4:
+        myIntegrator.SetForceCalTriangPar();
+        break;
+    case 5:
+        myIntegrator.SetForceCalSimpleParCXX();
+        break;
+    default:
+        std::cout << "Error while seting force method. Back to default" << std::endl;
+    };
+    switch(i_i_integratorMethod)
+    {
+    case 1:
+        myIntegrator.SetIntegratorEulerFW();
+        break;
+    case 2:
+        myIntegrator.SetIntegratorVerlet();
+        break;
+    case 3:
+        myIntegrator.SetIntegratorVerletPar();
+        break;
+    default:
+        std::cout << "Error while seting integrator method. Back to default" << std::endl;
     };
 
 
@@ -338,10 +472,23 @@ void TIntegrator::Test_benchmark_force_calculation(int i)
 
     }
 
-    for( int i = 0; i < 500; ++i)
+    if ( -1 == i_forceMethod && -1 == i_i_integratorMethod )
     {
-        myIntegrator.DoStep();
-        if( 0 == i % 100 ) std::cout << "Step " << i << std::endl;
+        for( int i = 0; i < 500; ++i)
+        {
+            myIntegrator.DoStepCXX();
+            if( 0 == i % 100 ) std::cout << "Step " << i << std::endl;
+        }
+
+    }
+    else
+    {
+
+        for( int i = 0; i < 500; ++i)
+        {
+            myIntegrator.DoStep();
+            if( 0 == i % 100 ) std::cout << "Step " << i << std::endl;
+        }
     }
 
     return;

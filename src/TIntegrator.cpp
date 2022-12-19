@@ -12,6 +12,8 @@
 
 #include "Contants.hpp"
 
+#include <tbb/parallel_for.h>
+
 TIntegrator::TIntegrator() {
     SetForceCalSimple();
     SetIntegratorVerlet();
@@ -249,6 +251,70 @@ void TIntegrator::DoStepCXX()
     }
 
 }
+void TIntegrator::DoStepTBB()
+{
+    ++step;
+
+    // first step of Verlet algorithm
+
+    {
+        auto ff = [&](TParticle & particle_i)
+        {
+
+            if( particle_i.isFixed ) return;
+            const int id = particle_i.id;
+            particle_i.force.x = 0;
+            particle_i.force.y = 0;
+            for( auto aux : particle_v)
+            {
+                if( id == aux.id ) continue;
+                particle_i.force += aux.Force( particle_i );
+            }
+            particle_i.pos.Add( particle_i.vel, h);
+            particle_i.pos.Add( particle_i.force, 0.5*h*h/particle_i.mass );
+            return;
+        };
+
+        tbb::parallel_for( tbb::blocked_range<int>(0,particle_v.size()),
+                           [&](tbb::blocked_range<int> r)
+        {
+            for (int i=r.begin(); i<r.end(); ++i)
+            {
+               ff(particle_v[i]);
+            }
+        });
+
+    }
+
+
+    //recalculate forces at new positions, and sum force at the next position to the previous calculated force
+    {
+
+        auto ff = [&](TParticle & particle_i) {
+            if( particle_i.isFixed ) return;
+            const int id = particle_i.id;
+            for( auto aux : particle_v)
+            {
+                if( id == aux.id ) continue;
+                particle_i.force += aux.Force( particle_i );
+            }
+            // update Velocity
+            particle_i.vel.Add( particle_i.force, 0.5*h/particle_i.mass );
+
+
+        };
+        tbb::parallel_for( tbb::blocked_range<int>(0,particle_v.size()),
+                           [&](tbb::blocked_range<int> r)
+        {
+            for (int i=r.begin(); i<r.end(); ++i)
+            {
+               ff(particle_v[i]);
+            }
+        });
+
+    }
+
+}
 
 
 void TIntegrator::IntegratorEulerFw(std::vector<TVector>& force_v)
@@ -480,6 +546,15 @@ void TIntegrator::Test_benchmark_force_calculation(int i_forceMethod, int i_i_in
             if( 0 == i % 100 ) std::cout << "Step " << i << std::endl;
         }
 
+    }
+    else if( -2 == i_forceMethod && -2 == i_i_integratorMethod )
+    {
+
+        for( int i = 0; i < 500; ++i)
+        {
+            myIntegrator.DoStepTBB();
+            if( 0 == i % 100 ) std::cout << "Step " << i << std::endl;
+        }
     }
     else
     {

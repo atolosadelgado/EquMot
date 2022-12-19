@@ -80,6 +80,10 @@ add_executable(test_full_cxx src/test_full_cxx.cpp)
 target_link_libraries(test_full_cxx tvector tparticle tplot tintegrator tmatrixtriang OpenMP::OpenMP_CXX TBB::tbb) #   TBB::tbb
 add_test( NAME test_full_cxx COMMAND  $<TARGET_FILE:test_full_cxx> )
 
+add_executable(test_full_tbb src/test_full_tbb.cpp)
+target_link_libraries(test_full_tbb tvector tparticle tplot tintegrator tmatrixtriang OpenMP::OpenMP_CXX TBB::tbb) #   TBB::tbb
+add_test( NAME test_full_tbb COMMAND  $<TARGET_FILE:test_full_tbb> )
+
 add_executable(test_SolarSystem src/test_SolarSystem.cpp)
 target_link_libraries(test_SolarSystem tvector tparticle tplot tintegrator tmatrixtriang OpenMP::OpenMP_CXX TBB::tbb) #   TBB::tbb
 add_test( NAME test_SolarSystem COMMAND  $<TARGET_FILE:test_SolarSystem> )

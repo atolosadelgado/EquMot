@@ -2,3 +2,4 @@ myBolasLocas.kdev4
 build
 .kdev4/
 data
+build_clang

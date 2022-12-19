@@ -42,8 +42,11 @@ public:
     /// Calculate potentials and do the actual step
     void DoStep();
 
-    /// Calculate potentials and do the actual step
+    /// Calculate potentials and do the actual step, equivalent to ForceCXX+VerletCXX
     void DoStepCXX();
+
+    /// Calculate potentials and do the actual step, equivalent to DoStepCXX but using TBB
+    void DoStepTBB();
 
     /// Pointer to function which actually calculate the force
     std::function<void( std::vector<TVector> & f )> CalculateForce;

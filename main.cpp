@@ -285,11 +285,8 @@ void Test_Spring()
 
 }
 
-int main()
+void Test_Spring2()
 {
-
-//     Test_SS();
-//     return 0;
 
 
 
@@ -352,6 +349,115 @@ int main()
             std::cout << "Step " << istep << std::endl;
 
     }
+
+
+
+    return;
+};
+
+int main()
+{
+
+     TPlot plt;
+
+    TIntegrator myIntegrator;
+
+    myIntegrator.h = 1;
+    myIntegrator.nrefresh = 1000;
+
+    TParticle::f_constant = G_UA_MSun;
+    TParticle::fE_constant = K_SI_e_nm;
+    TParticle::fL_constant = 1e-2;
+    TParticle::frad_critical = 1.5;
+
+
+    const int nx = 20;
+    const int ny = 20;
+    myIntegrator.SetNparticlesRnd(nx*ny);
+
+    std::default_random_engine generator (0);
+
+    /// Random distribution to place the particles
+    const double eV = 1.6e-19; //J
+    double v = sqrt( 0.025*eV*2/23/UAM_kg);
+    v = 1e-5;
+    std::uniform_real_distribution<double> rnd_vel (-v, v);
+
+    for( int inx = 0; inx< nx; ++inx)
+    {
+        for( int iny = 0; iny < ny; ++iny)
+        {
+            myIntegrator.particle_v[inx*ny+iny].pos.x = inx;
+            myIntegrator.particle_v[inx*ny+iny].pos.y = iny;
+            myIntegrator.particle_v[inx*ny+iny].vel.x =    0 ; // rnd_vel(generator); //
+            myIntegrator.particle_v[inx*ny+iny].vel.y = 0;
+            myIntegrator.particle_v[inx*ny+iny].mass = 1e5; //1e15*UAM_kg;
+            myIntegrator.particle_v[inx*ny+iny].SetForce(4);;
+
+
+
+            // Keep 2 layers of atoms fixed
+//             if( 0 == inx*iny || 4 > inx || 4 > iny || nx-4 <= inx || ny-4 <= iny )
+//                 myIntegrator.particle_v[inx*nx+iny].isFixed = true;
+            if(  0 == inx ||  0 == iny || nx-1 == inx || ny-1 == iny)
+                myIntegrator.particle_v[inx*nx+iny].isFixed = true;
+
+            if( nx-5 == inx && false ==  myIntegrator.particle_v[inx*nx+iny].isFixed )
+                myIntegrator.particle_v[inx*ny+iny].vel.x = -1e-5; //
+
+
+
+
+        }
+    }
+
+    myIntegrator.PlotPositions(plt);
+    myIntegrator.SetCriticalRadius(1.1);
+
+//     return 0;
+
+    std::ofstream ofile("Verlet_2_crystal.txt");
+    std::ofstream ofilePos("Verlet_2_crystal_pos.txt");
+
+
+    for( int istep = 0; istep < 5000000; ++istep)
+    {
+        myIntegrator.DoStepTBB();
+//         myIntegrator.PlotPositions(plt);
+
+//         myIntegrator.CheckDistances();
+//         myIntegrator.PrintMene();
+
+        if( 0 == istep % myIntegrator.nrefresh )
+            std::cout << "Step " << istep << std::endl;
+
+        if( 0 == istep % myIntegrator.nrefresh )
+        {
+            double s2 = 0;
+            double pos_bar = 0;
+            for( int inx = 0; inx< nx; ++inx)
+            {
+                for( int iny = 0; iny < ny; ++iny)
+                {
+                    TParticle & p = myIntegrator.particle_v.at(inx*ny+iny);
+
+                    double dx = (p.pos.x - double(inx));
+                    double dy = (p.pos.y - double(iny));
+                    double r2 = dx*dx + dy*dy;
+                    pos_bar+= sqrt( r2 );
+                    s2 += r2;
+                }
+            }
+            ofile << myIntegrator.GetMene() << '\t' << pos_bar/TParticle::nparticles << '\t' << sqrt(s2/TParticle::nparticles) << std::endl;
+            ofilePos << myIntegrator.particle_v[10*nx+10].pos << std::endl;
+        }
+
+
+
+    }
+
+    ofile.close();
+    ofilePos.close();
 
 
 

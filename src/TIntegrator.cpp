@@ -268,8 +268,8 @@ void TIntegrator::DoStepTBB()
 //             for( auto aux : particle_v)
             for( auto & aux : particle_i.related_particles )
             {
-                if( id == aux->id ) continue;
-                particle_i.force += aux->Force( particle_i );
+                if( id == aux.get().id ) continue;
+                particle_i.force += aux.get().Force( particle_i );
             }
             particle_i.pos.Add( particle_i.vel, h);
             particle_i.pos.Add( particle_i.force, 0.5*h*h/particle_i.mass );
@@ -297,8 +297,8 @@ void TIntegrator::DoStepTBB()
 //             for( auto aux : particle_v)
             for( auto & aux : particle_i.related_particles)
             {
-                if( id == aux->id ) continue;
-                particle_i.force += aux->Force( particle_i );
+                if( id == aux.get().id ) continue;
+                particle_i.force += aux.get().Force( particle_i );
             }
             // update Velocity
             particle_i.vel.Add( particle_i.force, 0.5*h/particle_i.mass );
@@ -328,9 +328,12 @@ void TIntegrator::SetCriticalRadius(double r)
     {
         for( int i = 0; i < particle_v.size(); ++i)
         {
-            if( TVector::distance( p.pos , particle_v[i].pos ) < r )
-                p.related_particles.push_back( std::shared_ptr<TParticle>( &(particle_v[i])));
+            if( TVector::distance( p.pos , particle_v[i].pos ) < r && p.id!=particle_v[i].id )
+                p.related_particles.push_back( std::reference_wrapper<TParticle>( particle_v[i]));
         }
+// #ifndef NDEBUG
+        std::cout << "Particle pos: " << p.pos << "\t Number of related particles: " << p.related_particles.size() << std::endl;
+// #endif
     }
     return;
 }

@@ -38,4 +38,13 @@ const double seconds_per_year = 365.26*24*3600;
 const double G_UA_MSun_yr = G_SI / pow(1.495978707, 3) * 1.989e-3 * pow(seconds_per_year,2); // UA3 msun-1 s-2
 const double earth_obital_speed_UA_yr = earth_obital_speed/UA_m*seconds_per_year; // m/s
 
+const double K_SI = 9e9; //N m2 / C2
+const double e_ch = 1.602176634e-19; //C
+
+const double K_SI_e = K_SI * e_ch * e_ch ; //N m2
+const double K_SI_e_nm = K_SI_e *1e18 ; //N nm2
+
+const double UAM_kg = 1.66e-27; //kg
+
+
 #endif

@@ -108,6 +108,183 @@ void Test_TMatrix(int n = 10)
     return;
 }
 
+void Test_Crystal()
+{
+     TPlot plt;
+
+    TIntegrator myIntegrator;
+
+    myIntegrator.h = 1;
+    myIntegrator.nrefresh = 1000;
+
+    TParticle::f_constant = G_UA_MSun;
+    TParticle::fE_constant = K_SI_e_nm;
+    TParticle::fL_constant = 1e-3;
+    TParticle::frad_critical = 1.5;
+
+
+    const int nx = 20;
+    const int ny = 20;
+    myIntegrator.SetNparticlesRnd(nx*ny);
+
+    std::default_random_engine generator (0);
+
+    /// Random distribution to place the particles
+    const double eV = 1.6e-19; //J
+    double v = sqrt( 0.025*eV*2/23/UAM_kg);
+    v = 1e-5;
+    std::uniform_real_distribution<double> rnd_vel (-v, v);
+
+    for( int inx = 0; inx< nx; ++inx)
+    {
+        for( int iny = 0; iny < ny; ++iny)
+        {
+            myIntegrator.particle_v[inx*ny+iny].pos.x = inx;
+            myIntegrator.particle_v[inx*ny+iny].pos.y = iny;
+            myIntegrator.particle_v[inx*ny+iny].vel.x =    0 ; // rnd_vel(generator); //
+            myIntegrator.particle_v[inx*ny+iny].vel.y = 0;
+            myIntegrator.particle_v[inx*ny+iny].mass = 1; //1e15*UAM_kg;
+            myIntegrator.particle_v[inx*ny+iny].charge = 1;
+            myIntegrator.particle_v[inx*ny+iny].SetForce(4);;
+
+            if( (inx+iny) % 2 )
+            {
+                myIntegrator.particle_v[inx*nx+iny].charge *= -1.;
+//                 myIntegrator.particle_v[inx*nx+iny].isFixed = true;
+
+
+
+
+            }
+
+            // Keep 2 layers of atoms fixed
+            if( 0 == inx*iny || 4 > inx || 4 > iny || nx-4 <= inx || ny-4 <= iny )
+                myIntegrator.particle_v[inx*nx+iny].isFixed = true;
+
+            if( nx-5 == inx && false ==  myIntegrator.particle_v[inx*nx+iny].isFixed )
+                myIntegrator.particle_v[inx*ny+iny].vel.x = -1e-5; //
+
+
+
+
+        }
+    }
+
+    myIntegrator.PlotPositions(plt);
+
+
+    std::ofstream ofile("Verlet_2_crystal.txt");
+
+    for( int istep = 0; istep < 5000000; ++istep)
+    {
+        myIntegrator.DoStepTBB();
+        myIntegrator.PlotPositions(plt);
+
+//         myIntegrator.CheckDistances();
+//         myIntegrator.PrintMene();
+
+        if( 0 == istep % myIntegrator.nrefresh )
+            std::cout << "Step " << istep << std::endl;
+
+        if( 0 == istep % myIntegrator.nrefresh )
+        {
+            double s2 = 0;
+            double pos_bar = 0;
+            for( int inx = 0; inx< nx; ++inx)
+            {
+                for( int iny = 0; iny < ny; ++iny)
+                {
+                    TParticle & p = myIntegrator.particle_v.at(inx*ny+iny);
+
+                    double dx = (p.pos.x - double(inx));
+                    double dy = (p.pos.y - double(iny));
+                    double r2 = dx*dx + dy*dy;
+                    pos_bar+= sqrt( r2 );
+                    s2 += r2;
+                }
+            }
+            ofile << myIntegrator.GetMene() << '\t' << pos_bar/TParticle::nparticles << '\t' << sqrt(s2/TParticle::nparticles) << std::endl;
+        }
+
+//         if( 100 == istep )
+//         {
+//                 for( int i = 0; i< ny; ++i)
+//             {
+//                 myIntegrator.particle_v[(nx-2)*ny+i].vel.x -=0.5e-5;
+//             }
+//             std::cin.ignore();
+//         }
+
+    }
+
+    ofile.close();
+
+
+}
+
+void Test_Spring()
+{
+     TPlot plt;
+
+    TIntegrator myIntegrator;
+
+    myIntegrator.h = 0.01;
+    myIntegrator.nrefresh = 1;
+
+    TParticle::fL_constant = 1.0;
+//     TParticle::frad_critical = 15;
+
+
+    myIntegrator.SetNparticlesRnd(4);
+
+
+
+    myIntegrator.particle_v[0].pos.x = 0;
+    myIntegrator.particle_v[0].pos.y = 0;
+    myIntegrator.particle_v[0].vel.x = 0;
+    myIntegrator.particle_v[0].vel.y = 0;
+    myIntegrator.particle_v[0].isFixed = true;
+
+    myIntegrator.particle_v[0].SetForce(4);
+
+    myIntegrator.particle_v[1].pos.x = 20;
+    myIntegrator.particle_v[1].pos.y = 0;
+    myIntegrator.particle_v[1].vel.x = 0;
+    myIntegrator.particle_v[1].vel.y = 0;
+    myIntegrator.particle_v[1].isFixed = true;
+    myIntegrator.particle_v[1].SetForce(4);
+
+
+    myIntegrator.particle_v[2].pos.x = 7;
+    myIntegrator.particle_v[2].pos.y = 0;
+    myIntegrator.particle_v[2].vel.x = -1;
+    myIntegrator.particle_v[2].vel.y = 0;
+    myIntegrator.particle_v[2].mass  = 1;
+    myIntegrator.particle_v[2].isFixed = false;
+    myIntegrator.particle_v[2].SetForce(4);
+
+    myIntegrator.particle_v[3].pos.x = 17;
+    myIntegrator.particle_v[3].pos.y = 0;
+    myIntegrator.particle_v[3].vel.x = 1;
+    myIntegrator.particle_v[3].vel.y = 0;
+    myIntegrator.particle_v[3].mass  = 1;
+    myIntegrator.particle_v[3].isFixed = false;
+    myIntegrator.particle_v[3].SetForce(4);
+
+    myIntegrator.PlotPositions(plt);
+
+    for( int istep = 0; istep < 5000000; ++istep)
+    {
+        myIntegrator.DoStepTBB();
+        myIntegrator.PlotPositions(plt);
+
+        if( 0 == istep % myIntegrator.nrefresh )
+            std::cout << "Step " << istep << std::endl;
+
+    }
+
+}
+
 int main()
 {
 
@@ -120,78 +297,61 @@ int main()
 
     TIntegrator myIntegrator;
 
-    myIntegrator.h = 3600;
-    myIntegrator.nrefresh = 1000;
+    myIntegrator.h = 0.01;
+    myIntegrator.nrefresh = 1;
 
-    TParticle::f_constant = G_UA_MSun;
+    TParticle::fL_constant = 1.0;
+//     TParticle::frad_critical = 15;
 
-    myIntegrator.SetNparticlesRnd(500);
 
-    // Sun
+    myIntegrator.SetNparticlesRnd(4);
+
+
+
     myIntegrator.particle_v[0].pos.x = 0;
     myIntegrator.particle_v[0].pos.y = 0;
     myIntegrator.particle_v[0].vel.x = 0;
     myIntegrator.particle_v[0].vel.y = 0;
-    myIntegrator.particle_v[0].mass = 1.0;
     myIntegrator.particle_v[0].isFixed = true;
 
+    myIntegrator.particle_v[0].SetForce(4);
 
-    std::cout << myIntegrator.particle_v[0] << std::endl;
-
-
-
-    // Earth
-    myIntegrator.particle_v[1].pos.x = 1.;
+    myIntegrator.particle_v[1].pos.x = 20;
     myIntegrator.particle_v[1].pos.y = 0;
     myIntegrator.particle_v[1].vel.x = 0;
-    myIntegrator.particle_v[1].vel.y = earth_obital_speed_UA;
-    myIntegrator.particle_v[1].mass =  mass_earth / mass_sun;
-    std::cout << myIntegrator.particle_v[1] << std::endl;
+    myIntegrator.particle_v[1].vel.y = 0;
+    myIntegrator.particle_v[1].isFixed = true;
+    myIntegrator.particle_v[1].SetForce(4);
 
 
-
-    // Moon
-    myIntegrator.particle_v[2].pos.x = 1 - moon_distance_to_earth/UA_m;
+    myIntegrator.particle_v[2].pos.x = 7;
     myIntegrator.particle_v[2].pos.y = 0;
-    myIntegrator.particle_v[2].vel.x = 0;
-    myIntegrator.particle_v[2].vel.y = earth_obital_speed_UA - moon_obital_speed_UA;
-    myIntegrator.particle_v[2].mass =  moon_mass / mass_sun;
-    std::cout << myIntegrator.particle_v[2] << std::endl;
+    myIntegrator.particle_v[2].vel.x = -1;
+    myIntegrator.particle_v[2].vel.y = 0;
+    myIntegrator.particle_v[2].mass  = 1;
+    myIntegrator.particle_v[2].isFixed = false;
+    myIntegrator.particle_v[2].SetForce(4);
 
-    std::default_random_engine generator (0);
+    myIntegrator.particle_v[3].pos.x = 17;
+    myIntegrator.particle_v[3].pos.y = 0;
+    myIntegrator.particle_v[3].vel.x = 1;
+    myIntegrator.particle_v[3].vel.y = 0;
+    myIntegrator.particle_v[3].mass  = 1;
+    myIntegrator.particle_v[3].isFixed = false;
+    myIntegrator.particle_v[3].SetForce(4);
 
-/// Random distribution to place the particles
-    std::uniform_real_distribution<double> rnd_vel (-earth_obital_speed_UA,earth_obital_speed_UA);
-    for( int i=3; i<500; ++i)
+    myIntegrator.PlotPositions(plt);
+
+    for( int istep = 0; istep < 5000000; ++istep)
     {
-        myIntegrator.particle_v[i].mass =  moon_mass / mass_sun /100 ;
-        myIntegrator.particle_v[i].vel.x = rnd_vel(generator) ;
-        myIntegrator.particle_v[i].vel.y = rnd_vel(generator) ;
+        myIntegrator.DoStepTBB();
+        myIntegrator.PlotPositions(plt);
+
+        if( 0 == istep % myIntegrator.nrefresh )
+            std::cout << "Step " << istep << std::endl;
 
     }
 
-
-
-//     myIntegrator.PlotPositions(plt);
-
-
-
-//     std::ofstream ofile("Verlet_2.txt");
-
-    for( int i = 0; i < 500; ++i)
-    {
-        myIntegrator.DoStep();
-//         myIntegrator.CheckDistances();
-//         myIntegrator.PlotPositions(plt);
-//         myIntegrator.PrintMene();
-
-//         std::cin.ignore();
-//         if( 0 == i % 10 )  ofile << myIntegrator.GetMene() << std::endl;
-        if( 0 == i % 100 ) std::cout << "Step " << i << std::endl;
-
-    }
-
-//     ofile.close();
 
 
 }

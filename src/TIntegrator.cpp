@@ -265,10 +265,11 @@ void TIntegrator::DoStepTBB()
             const int id = particle_i.id;
             particle_i.force.x = 0;
             particle_i.force.y = 0;
-            for( auto aux : particle_v)
+//             for( auto aux : particle_v)
+            for( auto & aux : particle_i.related_particles )
             {
-                if( id == aux.id ) continue;
-                particle_i.force += aux.Force( particle_i );
+                if( id == aux->id ) continue;
+                particle_i.force += aux->Force( particle_i );
             }
             particle_i.pos.Add( particle_i.vel, h);
             particle_i.pos.Add( particle_i.force, 0.5*h*h/particle_i.mass );
@@ -280,7 +281,7 @@ void TIntegrator::DoStepTBB()
         {
             for (int i=r.begin(); i<r.end(); ++i)
             {
-               ff(particle_v[i]);
+                ff(particle_v[i]);
             }
         });
 
@@ -293,10 +294,11 @@ void TIntegrator::DoStepTBB()
         auto ff = [&](TParticle & particle_i) {
             if( particle_i.isFixed ) return;
             const int id = particle_i.id;
-            for( auto aux : particle_v)
+//             for( auto aux : particle_v)
+            for( auto & aux : particle_i.related_particles)
             {
-                if( id == aux.id ) continue;
-                particle_i.force += aux.Force( particle_i );
+                if( id == aux->id ) continue;
+                particle_i.force += aux->Force( particle_i );
             }
             // update Velocity
             particle_i.vel.Add( particle_i.force, 0.5*h/particle_i.mass );
@@ -308,13 +310,31 @@ void TIntegrator::DoStepTBB()
         {
             for (int i=r.begin(); i<r.end(); ++i)
             {
-               ff(particle_v[i]);
+                ff(particle_v[i]);
             }
         });
 
     }
 
 }
+
+void TIntegrator::SetCriticalRadius(double r)
+{
+    if( r<0 )
+        r = std::numeric_limits<double>::max();
+
+
+    for( auto & p : particle_v )
+    {
+        for( int i = 0; i < particle_v.size(); ++i)
+        {
+            if( TVector::distance( p.pos , particle_v[i].pos ) < r )
+                p.related_particles.push_back( std::shared_ptr<TParticle>( &(particle_v[i])));
+        }
+    }
+    return;
+}
+
 
 
 void TIntegrator::IntegratorEulerFw(std::vector<TVector>& force_v)

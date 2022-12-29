@@ -316,7 +316,7 @@ int main()
 
     myIntegrator.particle_v[0].SetForce(4);
 
-    myIntegrator.particle_v[1].pos.x = 20;
+    myIntegrator.particle_v[1].pos.x = 18;
     myIntegrator.particle_v[1].pos.y = 0;
     myIntegrator.particle_v[1].vel.x = 0;
     myIntegrator.particle_v[1].vel.y = 0;
@@ -324,23 +324,24 @@ int main()
     myIntegrator.particle_v[1].SetForce(4);
 
 
-    myIntegrator.particle_v[2].pos.x = 7;
+    myIntegrator.particle_v[2].pos.x = 6;
     myIntegrator.particle_v[2].pos.y = 0;
-    myIntegrator.particle_v[2].vel.x = -1;
-    myIntegrator.particle_v[2].vel.y = 0;
+    myIntegrator.particle_v[2].vel.x = 0;
+    myIntegrator.particle_v[2].vel.y = 1;
     myIntegrator.particle_v[2].mass  = 1;
     myIntegrator.particle_v[2].isFixed = false;
     myIntegrator.particle_v[2].SetForce(4);
 
-    myIntegrator.particle_v[3].pos.x = 17;
+    myIntegrator.particle_v[3].pos.x = 12;
     myIntegrator.particle_v[3].pos.y = 0;
-    myIntegrator.particle_v[3].vel.x = 1;
-    myIntegrator.particle_v[3].vel.y = 0;
+    myIntegrator.particle_v[3].vel.x = 0;
+    myIntegrator.particle_v[3].vel.y = -1;
     myIntegrator.particle_v[3].mass  = 1;
     myIntegrator.particle_v[3].isFixed = false;
     myIntegrator.particle_v[3].SetForce(4);
 
     myIntegrator.PlotPositions(plt);
+    myIntegrator.SetCriticalRadius(7);
 
     for( int istep = 0; istep < 5000000; ++istep)
     {

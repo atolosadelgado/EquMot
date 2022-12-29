@@ -11,6 +11,8 @@
 #include <functional>
 #include <numeric>
 
+#include <memory>
+
 /// Class to store properties of a particle
 class TParticle
 {
@@ -37,6 +39,9 @@ public:
 
     /// Id number of the particle
     int id = {0};
+
+    /// particles within the critical radious
+    std::vector< std::shared_ptr<TParticle> > related_particles;
 
     /// Static counter of particles
     static int nparticles;

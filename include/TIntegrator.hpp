@@ -39,14 +39,16 @@ public:
     /// Plot every nrefresh number of steps
     int nrefresh = {5};
 
-    /// Calculate potentials and do the actual step
+    /// DEPRECATED. Calculate potentials and do the actual step
     void DoStep();
 
-    /// Calculate potentials and do the actual step, equivalent to ForceCXX+VerletCXX
+    /// DEPRECATED. Calculate potentials and do the actual step, equivalent to ForceCXX+VerletCXX
     void DoStepCXX();
 
     /// Calculate potentials and do the actual step, equivalent to DoStepCXX but using TBB
     void DoStepTBB();
+
+    void SetCriticalRadius(double r = -1);
 
     /// Pointer to function which actually calculate the force
     std::function<void( std::vector<TVector> & f )> CalculateForce;

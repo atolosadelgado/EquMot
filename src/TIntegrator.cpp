@@ -61,14 +61,14 @@ void TIntegrator::PlotPositions(TPlot& plt)
     for( auto & particle : particle_v )
     {
         plt.AddPoint( particle.pos );
-#ifdef NDEBUG
+#ifndef NDEBUG
         std::cout << particle << std::endl;
 #endif
     }
 
     plt.ShowPlot();
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
 }
 
 void TIntegrator::CalculateForceSimpleParCXX(std::vector<TVector> & f)

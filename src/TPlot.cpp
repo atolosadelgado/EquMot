@@ -22,6 +22,7 @@ TPlot::TPlot()
     fprintf(plotHandle,"set xrange [-5:25]\n");
     fprintf(plotHandle,"set yrange [-5:25]\n");
     fprintf(plotHandle,"set grid\n");
+    fprintf(plotHandle, "set style fill solid 1.0\n");
 #endif
 
 }
@@ -50,6 +51,27 @@ void TPlot::ShowPlot()
     fflush(plotHandle);
 #endif
 }
+
+
+void TPlot::StartH2D()
+{
+#ifdef GNUPLOT
+//     fprintf( plotHandle, "plot '-'\n");
+    fprintf( plotHandle, "plot '-' w boxxy fc palette z\n");
+#endif
+
+}
+
+
+void TPlot::AddPointH2D(TVector& v, double w)
+{
+#ifdef GNUPLOT
+    fprintf( plotHandle, "%g %g 0.5 0.5 %g\n", v.x, v.y, w);
+#endif
+}
+
+
+
 
 TPlot::~TPlot()
 {

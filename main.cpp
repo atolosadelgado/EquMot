@@ -13,6 +13,8 @@
 
 #include <fstream>
 #include <iostream>
+#include <thread>
+
 
 void Test_ensemble()
 {
@@ -110,7 +112,7 @@ void Test_TMatrix(int n = 10)
 
 void Test_Crystal()
 {
-     TPlot plt;
+    TPlot plt;
 
     TIntegrator myIntegrator;
 
@@ -224,7 +226,7 @@ void Test_Crystal()
 
 void Test_Spring()
 {
-     TPlot plt;
+    TPlot plt;
 
     TIntegrator myIntegrator;
 
@@ -358,17 +360,18 @@ void Test_Spring2()
 int main()
 {
 
-     TPlot plt;
+    TPlot plt;
+    TPlot plt_kene;
 
     TIntegrator myIntegrator;
 
     myIntegrator.h = 1;
-    myIntegrator.nrefresh = 1000;
+    myIntegrator.nrefresh = 200;
 
     TParticle::f_constant = G_UA_MSun;
     TParticle::fE_constant = K_SI_e_nm;
     TParticle::fL_constant = 1e-2;
-    TParticle::frad_critical = 1.5;
+//     TParticle::frad_critical = 1.5;
 
 
     const int nx = 20;
@@ -389,21 +392,25 @@ int main()
         {
             myIntegrator.particle_v[inx*ny+iny].pos.x = inx;
             myIntegrator.particle_v[inx*ny+iny].pos.y = iny;
-            myIntegrator.particle_v[inx*ny+iny].vel.x =    0 ; // rnd_vel(generator); //
-            myIntegrator.particle_v[inx*ny+iny].vel.y = 0;
+            myIntegrator.particle_v[inx*ny+iny].vel.x = 0; // rnd_vel(generator) ; // rnd_vel(generator); //
+            myIntegrator.particle_v[inx*ny+iny].vel.y = 0; // rnd_vel(generator);
             myIntegrator.particle_v[inx*ny+iny].mass = 1e5; //1e15*UAM_kg;
             myIntegrator.particle_v[inx*ny+iny].SetForce(4);;
 
 
 
-            // Keep 2 layers of atoms fixed
-//             if( 0 == inx*iny || 4 > inx || 4 > iny || nx-4 <= inx || ny-4 <= iny )
-//                 myIntegrator.particle_v[inx*nx+iny].isFixed = true;
+            // Keep particles in the corner fixed
             if(  0 == inx ||  0 == iny || nx-1 == inx || ny-1 == iny)
+            {
                 myIntegrator.particle_v[inx*nx+iny].isFixed = true;
+                myIntegrator.particle_v[inx*ny+iny].vel.x = 0;
+                if( 0 == inx&& 0 == iny )
+                    myIntegrator.particle_v[inx*ny+iny].vel.x = 0.1*v;
 
-            if( nx-5 == inx && false ==  myIntegrator.particle_v[inx*nx+iny].isFixed )
-                myIntegrator.particle_v[inx*ny+iny].vel.x = -1e-5; //
+            }
+
+//             if( nx-5 == inx && false ==  myIntegrator.particle_v[inx*nx+iny].isFixed )
+//                 myIntegrator.particle_v[inx*ny+iny].vel.x = -1e-5; //
 
 
 
@@ -428,6 +435,13 @@ int main()
 //         myIntegrator.CheckDistances();
 //         myIntegrator.PrintMene();
 
+        if( 30000 == istep )
+        {
+            std::cin.ignore();
+            myIntegrator.particle_v[10*ny+10].vel.x = v;
+        }
+
+
         if( 0 == istep % myIntegrator.nrefresh )
             std::cout << "Step " << istep << std::endl;
 
@@ -450,6 +464,24 @@ int main()
             }
             ofile << myIntegrator.GetMene() << '\t' << pos_bar/TParticle::nparticles << '\t' << sqrt(s2/TParticle::nparticles) << std::endl;
             ofilePos << myIntegrator.particle_v[10*nx+10].pos << std::endl;
+        }
+        if( 0 == istep % myIntegrator.nrefresh )
+        {
+
+
+            plt_kene.StartH2D();
+
+            for( auto & particle : myIntegrator.particle_v )
+            {
+                plt_kene.AddPointH2D( particle.pos , particle.Kene() );
+#ifndef NDEBUG
+                std::cout << particle << std::endl;
+#endif
+            }
+
+            plt_kene.ShowPlot();
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
 
 

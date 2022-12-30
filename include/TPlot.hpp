@@ -17,6 +17,8 @@ public:
     void AddPoint( TVector & v);
     void ShowPlot();
     FILE * plotHandle;
+    void StartH2D();
+    void AddPointH2D(  TVector & v, double w );
 };
 
 

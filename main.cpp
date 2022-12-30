@@ -371,7 +371,6 @@ int main()
     TParticle::f_constant = G_UA_MSun;
     TParticle::fE_constant = K_SI_e_nm;
     TParticle::fL_constant = 1e-2;
-//     TParticle::frad_critical = 1.5;
 
 
     const int nx = 20;
@@ -392,16 +391,10 @@ int main()
         {
             myIntegrator.particle_v[inx*ny+iny].pos.x = inx;
             myIntegrator.particle_v[inx*ny+iny].pos.y = iny;
-            myIntegrator.particle_v[inx*ny+iny].vel.x = 0; // rnd_vel(generator) ; // rnd_vel(generator); //
+            myIntegrator.particle_v[inx*ny+iny].vel.x = 0; // rnd_vel(generator);
             myIntegrator.particle_v[inx*ny+iny].vel.y = 0; // rnd_vel(generator);
-            myIntegrator.particle_v[inx*ny+iny].mass = 1e5; //1e15*UAM_kg;
+            myIntegrator.particle_v[inx*ny+iny].mass = 1e5;
             myIntegrator.particle_v[inx*ny+iny].SetForce(4);;
-
-//             if( (inx+iny)%2 )
-//                 myIntegrator.particle_v[inx*ny+iny].mass *=2;
-
-
-
 
             // Keep particles in the corner fixed
             if(  0 == inx ||  0 == iny || nx-1 == inx || ny-1 == iny)
@@ -415,20 +408,12 @@ int main()
 
             }
 
-//             if( nx-5 == inx && false ==  myIntegrator.particle_v[inx*nx+iny].isFixed )
-//                 myIntegrator.particle_v[inx*ny+iny].vel.x = -1e-5; //
-
-
-
-
         }
     }
 
     myIntegrator.PlotPositions(plt);
     myIntegrator.SetCriticalRadius(2.1);
     myIntegrator.SetDamping( -100.0 );
-
-//     return 0;
 
     std::ofstream ofile("Verlet_2_crystal.txt");
     std::ofstream ofilePos("Verlet_2_crystal_pos.txt");
@@ -437,7 +422,8 @@ int main()
     for( int istep = 0; istep < 5000000; ++istep)
     {
         myIntegrator.DoStepTBB();
-//         myIntegrator.PlotPositions(plt);
+        myIntegrator.PlotPositions(plt);
+        myIntegrator.PlotPositionsW(plt_kene, 'K');
 
 //         myIntegrator.CheckDistances();
 //         myIntegrator.PrintMene();
@@ -483,25 +469,6 @@ int main()
 
         if( 0 == istep % myIntegrator.nrefresh )
             std::cout << "Step " << istep << "\tKene " << kene << std::endl;
-
-        if( 0 == istep % myIntegrator.nrefresh )
-        {
-
-
-            plt_kene.StartH2D();
-
-            for( auto & particle : myIntegrator.particle_v )
-            {
-                plt_kene.AddPointH2D( particle.pos , particle.Kene() );
-#ifndef NDEBUG
-                std::cout << particle << std::endl;
-#endif
-            }
-
-            plt_kene.ShowPlot();
-
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));
-        }
 
 
 

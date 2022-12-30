@@ -51,6 +51,14 @@ public:
     /// Calculate potentials and do the actual step, equivalent to DoStepCXX but using TBB
     void DoStepTBB();
 
+    /// Disable damping
+    void SetDampingZero();
+
+    /// Set damping factor
+    void SetDamping( double d);
+
+
+
     void SetCriticalRadius(double r = -1);
 
     /// Pointer to function which actually calculate the force

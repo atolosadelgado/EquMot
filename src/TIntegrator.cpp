@@ -19,6 +19,20 @@ TIntegrator::TIntegrator() {
     SetIntegratorVerlet();
 }
 
+void TIntegrator::SetDampingZero()
+{
+    fDamp=0.0;
+    return;
+}
+
+void TIntegrator::SetDamping(double d)
+{
+    if( d<= 0) fDamp = d;
+    else       throw std::runtime_error("Damping factor can not be positive!");
+    return;
+}
+
+
 double TIntegrator::GetMene(double* Kene, double* Vene)
 {
     double _Kene = 0;

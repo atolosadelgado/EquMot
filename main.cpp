@@ -397,13 +397,19 @@ int main()
             myIntegrator.particle_v[inx*ny+iny].mass = 1e5; //1e15*UAM_kg;
             myIntegrator.particle_v[inx*ny+iny].SetForce(4);;
 
+//             if( (inx+iny)%2 )
+//                 myIntegrator.particle_v[inx*ny+iny].mass *=2;
+
+
 
 
             // Keep particles in the corner fixed
             if(  0 == inx ||  0 == iny || nx-1 == inx || ny-1 == iny)
             {
                 myIntegrator.particle_v[inx*nx+iny].isFixed = true;
+//                 myIntegrator.particle_v[inx*ny+iny].mass *=10000;
                 myIntegrator.particle_v[inx*ny+iny].vel.x = 0;
+                myIntegrator.particle_v[inx*ny+iny].vel.y = 0;
                 if( 0 == inx&& 0 == iny )
                     myIntegrator.particle_v[inx*ny+iny].vel.x = 0.1*v;
 
@@ -419,7 +425,8 @@ int main()
     }
 
     myIntegrator.PlotPositions(plt);
-    myIntegrator.SetCriticalRadius(1.1);
+    myIntegrator.SetCriticalRadius(2.1);
+    myIntegrator.fDamp = -100.0;
 
 //     return 0;
 
@@ -435,16 +442,24 @@ int main()
 //         myIntegrator.CheckDistances();
 //         myIntegrator.PrintMene();
 
-        if( 30000 == istep )
-        {
-            std::cin.ignore();
-            myIntegrator.particle_v[10*ny+10].vel.x = v;
-        }
+//         if( 30000 == istep )
+//         {
+//             std::cin.ignore();
+//             myIntegrator.particle_v[10*ny+10].vel.x = v;
+//         }
+
+//         for( int i = 3; i < 8; ++i)
+//         {
+//         myIntegrator.particle_v[i*ny+i].vel.x = 0;
+//         myIntegrator.particle_v[i*ny+i].vel.y = 0;
+//         }
+
+        if( 4e4 == istep)
+            myIntegrator.fDamp = 0.0;
 
 
-        if( 0 == istep % myIntegrator.nrefresh )
-            std::cout << "Step " << istep << std::endl;
 
+        double kene, vene;
         if( 0 == istep % myIntegrator.nrefresh )
         {
             double s2 = 0;
@@ -462,9 +477,13 @@ int main()
                     s2 += r2;
                 }
             }
-            ofile << myIntegrator.GetMene() << '\t' << pos_bar/TParticle::nparticles << '\t' << sqrt(s2/TParticle::nparticles) << std::endl;
+            ofile << myIntegrator.GetMene( &kene, &vene ) << '\t' << pos_bar/TParticle::nparticles << '\t' << sqrt(s2/TParticle::nparticles) << std::endl;
             ofilePos << myIntegrator.particle_v[10*nx+10].pos << std::endl;
         }
+
+        if( 0 == istep % myIntegrator.nrefresh )
+            std::cout << "Step " << istep << "\tKene " << kene << std::endl;
+
         if( 0 == istep % myIntegrator.nrefresh )
         {
 

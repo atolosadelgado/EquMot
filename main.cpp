@@ -426,7 +426,7 @@ int main()
 
     myIntegrator.PlotPositions(plt);
     myIntegrator.SetCriticalRadius(2.1);
-    myIntegrator.fDamp = -100.0;
+    myIntegrator.SetDamping( -100.0 );
 
 //     return 0;
 
@@ -455,7 +455,7 @@ int main()
 //         }
 
         if( 4e4 == istep)
-            myIntegrator.fDamp = 0.0;
+            myIntegrator.SetDampingZero();
 
 
 

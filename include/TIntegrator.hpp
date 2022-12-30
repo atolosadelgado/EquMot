@@ -30,6 +30,9 @@ public:
     /// number of particles
     int nparticles = {0};
 
+    /// Damped factor, F = -a v
+    double fDamp = {0.0};
+
     /// Time step
     double h = {0.1};
 

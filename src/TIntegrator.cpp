@@ -263,8 +263,9 @@ void TIntegrator::DoStepTBB()
 
             if( particle_i.isFixed ) return;
             const int id = particle_i.id;
-            particle_i.force.x = 0;
-            particle_i.force.y = 0;
+//             particle_i.force.x = 0;
+//             particle_i.force.y = 0;
+            particle_i.force = particle_i.vel.Scale( this->fDamp );
 //             for( auto aux : particle_v)
             for( auto & aux : particle_i.related_particles )
             {

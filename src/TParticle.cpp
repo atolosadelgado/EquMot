@@ -63,7 +63,8 @@ double TParticle::Kene() const {
 
 double TParticle::Vene( TParticle & ipar ) {
 //     return -f_constant*mass*ipar.mass/pos.distance(ipar.pos);
-    return -fE_constant*charge*ipar.charge/pos.distance(ipar.pos);
+//     return -fE_constant*charge*ipar.charge/pos.distance(ipar.pos);
+    return fL_constant*pos.distance(ipar.pos);
 };
 double TParticle::Mene( TParticle & ipar ) {
     return Kene()+Vene(ipar);

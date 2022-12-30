@@ -98,6 +98,11 @@ public:
     /// Plot positions of collection of particles
     void PlotPositions(TPlot & plt);
 
+    /// Plot positions of collection of particles + magnitude W = {M(echanic),K(inetic), V(potential) }
+    void PlotPositionsW(TPlot& plt, char);
+
+
+
     /// Initialize n particles randomly
     void SetNparticlesRnd(int n);
 

@@ -85,6 +85,38 @@ void TIntegrator::PlotPositions(TPlot& plt)
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
 }
 
+void TIntegrator::PlotPositionsW(TPlot& plt, char )
+{
+    if( 0 != step % nrefresh ) return;
+    auto W_func = [](TParticle & p){ return p.Kene();};
+// //     TODO: Rewrite function TParticle::Vene and TParticle::Mene in order to be usable here!
+//     switch( W )
+//     {
+//         case 'K': break;
+//         case 'V': break;
+//         case 'M': break;
+//
+//     };
+
+
+
+            plt.StartH2D();
+
+            for( auto & particle : particle_v )
+            {
+                plt.AddPointH2D( particle.pos , W_func(particle) );
+#ifndef NDEBUG
+                std::cout << particle << std::endl;
+#endif
+            }
+
+            plt.ShowPlot();
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
+}
+
+
 void TIntegrator::CalculateForceSimpleParCXX(std::vector<TVector> & f)
 {
     for_each( std::execution::par, particle_v.begin(), particle_v.end(), [](TParticle & p) {

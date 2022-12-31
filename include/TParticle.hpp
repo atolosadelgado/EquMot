@@ -102,7 +102,7 @@ inline TVector TParticle::ForceE( TParticle & ipar ) {
     double d2= dx*dx + dy*dy;
     double d = sqrt(d2);
     double fE_mod = 0;
-    if( d < frad_critical )
+//     if( d < frad_critical )
         fE_mod = -fE_constant*ipar.charge*charge/d2;
     return TVector( fE_mod*(dx)/d, fE_mod*(dy)/d);
 };
@@ -126,7 +126,7 @@ inline TVector TParticle::ForceL(TParticle& ipar)
     double d2= dx*dx + dy*dy;
     double d = sqrt(d2);
     double fL_mod = 0;
-    if( d < frad_critical )
+//     if( d < frad_critical )
         fL_mod = -fL_constant*d;
     return TVector( fL_mod*(dx)/d, fL_mod*(dy)/d);
 }

@@ -7,17 +7,20 @@
 #define __TPLOT_HPP__
 
 #include "TVector.hpp"
+#include <string>
 
 class TPlot
 {
 public:
-    TPlot();
+    TPlot(std::string _s = "", bool _save_png = false);
     ~TPlot();
-    void StartPlot();
+    void StartPlot(int n=0);
     void AddPoint( TVector & v);
     void ShowPlot();
     FILE * plotHandle;
-    void StartH2D();
+    bool save_png = {false};
+    std::string name = {""};
+    void StartH2D(int n=0);
     void AddPointH2D(  TVector & v, double w );
 };
 

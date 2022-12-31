@@ -14,6 +14,12 @@
 
 #include <tbb/parallel_for.h>
 
+#include <tbb/global_control.h>
+
+#ifndef NDEBUG
+tbb::global_control c(tbb::global_control::max_allowed_parallelism, 1);
+#endif
+
 TIntegrator::TIntegrator() {
     SetForceCalSimple();
     SetIntegratorVerlet();
@@ -70,7 +76,7 @@ void TIntegrator::PrintMene()
 void TIntegrator::PlotPositions(TPlot& plt)
 {
     if( 0 != step % nrefresh ) return;
-    plt.StartPlot();
+    plt.StartPlot(this->step);
 
     for( auto & particle : particle_v )
     {
@@ -82,7 +88,7 @@ void TIntegrator::PlotPositions(TPlot& plt)
 
     plt.ShowPlot();
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    std::this_thread::sleep_for(std::chrono::milliseconds(sleep_time_ms));
 }
 
 void TIntegrator::PlotPositionsW(TPlot& plt, char )
@@ -100,7 +106,7 @@ void TIntegrator::PlotPositionsW(TPlot& plt, char )
 
 
 
-            plt.StartH2D();
+            plt.StartH2D(this->step);
 
             for( auto & particle : particle_v )
             {
@@ -112,7 +118,7 @@ void TIntegrator::PlotPositionsW(TPlot& plt, char )
 
             plt.ShowPlot();
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            std::this_thread::sleep_for(std::chrono::milliseconds(sleep_time_ms));
 
 }
 
@@ -317,6 +323,9 @@ void TIntegrator::DoStepTBB()
             {
                 if( id == aux.get().id ) continue;
                 particle_i.force += aux.get().Force( particle_i );
+#ifndef NDEBUG
+                std::cout << "Particle " << particle_i.id << " feels particle with ID " << aux.get().id << std::endl;
+#endif
             }
             particle_i.pos.Add( particle_i.vel, h);
             particle_i.pos.Add( particle_i.force, 0.5*h*h/particle_i.mass );
@@ -498,6 +507,7 @@ void TIntegrator::SetNparticlesRnd(int n)
     particle_v = std::vector<TParticle>(n);
     forces_m.SetSize(n);
     nparticles = n;
+    std::cout << __PRETTY_FUNCTION__ << std::endl;
 }
 
 

@@ -42,6 +42,12 @@ public:
     /// Plot every nrefresh number of steps
     int nrefresh = {5};
 
+    /// Sleep time after plotting
+    int sleep_time_ms = {1};
+
+    /// Save snapshots
+    bool save_snapshots = {false};
+
     /// DEPRECATED. Calculate potentials and do the actual step
     void DoStep();
 
@@ -59,6 +65,7 @@ public:
 
 
 
+    /// Fills TParticle::related_particles with other particles within the radious r
     void SetCriticalRadius(double r = -1);
 
     /// Pointer to function which actually calculate the force

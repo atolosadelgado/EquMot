@@ -360,21 +360,22 @@ void Test_Spring2()
 int main()
 {
 
-    TPlot plt;
-    TPlot plt_kene;
+    TPlot plt("plt_positions");
+    TPlot plt_kene("plt_kene",true);
 
     TIntegrator myIntegrator;
 
-    myIntegrator.h = 1;
-    myIntegrator.nrefresh = 200;
+    myIntegrator.h = 20;
+    myIntegrator.nrefresh = 1000;
+    myIntegrator.sleep_time_ms = 0;
 
     TParticle::f_constant = G_UA_MSun;
     TParticle::fE_constant = K_SI_e_nm;
     TParticle::fL_constant = 1e-2;
 
 
-    const int nx = 20;
-    const int ny = 20;
+    const int nx = 200;
+    const int ny = 50;
     myIntegrator.SetNparticlesRnd(nx*ny);
 
     std::default_random_engine generator (0);
@@ -389,31 +390,35 @@ int main()
     {
         for( int iny = 0; iny < ny; ++iny)
         {
-            myIntegrator.particle_v[inx*ny+iny].pos.x = inx;
-            myIntegrator.particle_v[inx*ny+iny].pos.y = iny;
-            myIntegrator.particle_v[inx*ny+iny].vel.x = 0; // rnd_vel(generator);
-            myIntegrator.particle_v[inx*ny+iny].vel.y = 0; // rnd_vel(generator);
-            myIntegrator.particle_v[inx*ny+iny].mass = 1e5;
-            myIntegrator.particle_v[inx*ny+iny].SetForce(4);;
+            TParticle & p = myIntegrator.particle_v.at(inx*ny+iny);
+            std::cout << inx << " " << iny << std::endl;
+            p.pos.x = inx;
+            p.pos.y = iny;
+            p.vel.x = 0; // rnd_vel(generator);
+            p.vel.y = 0; // rnd_vel(generator);
+            p.mass = 1e5;
+            p.SetForce(4);;
 
             // Keep particles in the corner fixed
             if(  0 == inx ||  0 == iny || nx-1 == inx || ny-1 == iny)
             {
-                myIntegrator.particle_v[inx*nx+iny].isFixed = true;
-//                 myIntegrator.particle_v[inx*ny+iny].mass *=10000;
-                myIntegrator.particle_v[inx*ny+iny].vel.x = 0;
-                myIntegrator.particle_v[inx*ny+iny].vel.y = 0;
+                p.isFixed = true;
+//                 p.mass *=10000;
+                p.vel.x = 0;
+                p.vel.y = 0;
                 if( 0 == inx&& 0 == iny )
-                    myIntegrator.particle_v[inx*ny+iny].vel.x = 0.1*v;
+                    p.vel.x = 0.1*v;
 
             }
 
         }
     }
+//     return 0;
 
     myIntegrator.PlotPositions(plt);
-    myIntegrator.SetCriticalRadius(2.1);
-    myIntegrator.SetDamping( -100.0 );
+    myIntegrator.SetCriticalRadius(1.1);
+//     myIntegrator.SetDamping( -100.0 );
+//     return 0;
 
     std::ofstream ofile("Verlet_2_crystal.txt");
     std::ofstream ofilePos("Verlet_2_crystal_pos.txt");
@@ -422,17 +427,18 @@ int main()
     for( int istep = 0; istep < 5000000; ++istep)
     {
         myIntegrator.DoStepTBB();
+//          std::cin.ignore();
         myIntegrator.PlotPositions(plt);
         myIntegrator.PlotPositionsW(plt_kene, 'K');
 
 //         myIntegrator.CheckDistances();
 //         myIntegrator.PrintMene();
 
-//         if( 30000 == istep )
-//         {
-//             std::cin.ignore();
-//             myIntegrator.particle_v[10*ny+10].vel.x = v;
-//         }
+        if( 3000 == istep )
+        {
+            std::cin.ignore();
+            myIntegrator.particle_v[2*ny+25].vel.x = -v;
+        }
 
 //         for( int i = 3; i < 8; ++i)
 //         {
@@ -440,8 +446,8 @@ int main()
 //         myIntegrator.particle_v[i*ny+i].vel.y = 0;
 //         }
 
-        if( 4e4 == istep)
-            myIntegrator.SetDampingZero();
+//         if( 4e4 == istep)
+//             myIntegrator.SetDampingZero();
 
 
 
